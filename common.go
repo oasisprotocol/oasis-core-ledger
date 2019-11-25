@@ -72,7 +72,7 @@ func CheckVersion(ver VersionInfo, req VersionInfo) error {
 	return NewVersionRequiredError(req, ver)
 }
 
-func GetBip32bytes(bip44Path []uint32, hardenCount int) ([]byte, error) {
+func GetBip44bytes(bip44Path []uint32, hardenCount int) ([]byte, error) {
 	message := make([]byte, 20)
 	if len(bip44Path) != 5 {
 		return nil, fmt.Errorf("path should contain 5 elements")

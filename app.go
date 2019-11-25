@@ -33,6 +33,12 @@ const (
 	userMessageChunkSize = 250
 )
 
+const (
+	PayloadChunkInit = 0
+	PayloadChunkAdd  = 1
+	PayloadChunkLast = 2
+)
+
 // LedgerOasis represents a connection to the Ledger app
 type LedgerOasis struct {
 	api     *ledger_go.Ledger
@@ -74,7 +80,7 @@ func (ledger *LedgerOasis) Close() error {
 
 // VersionIsSupported returns true if the App version is supported by this library
 func (ledger *LedgerOasis) CheckVersion(ver VersionInfo) error {
-	return CheckVersion(ver, VersionInfo{0, 0, 0, 1})
+	return CheckVersion(ver, VersionInfo{0, 0, 3, 0})
 }
 
 // GetVersion returns the current version of the Oasis user app
@@ -109,23 +115,18 @@ func (ledger *LedgerOasis) SignEd25519(bip32Path []uint32, transaction []byte) (
 // GetPublicKeyEd25519 retrieves the public key for the corresponding bip32 derivation path (compressed)
 // this command DOES NOT require user confirmation in the device
 func (ledger *LedgerOasis) GetPublicKeyEd25519(bip32Path []uint32) ([]byte, error) {
-	pubkey, _, err := ledger.getAddressPubKeyEd25519(bip32Path, "oasis", false)
+	pubkey, _, err := ledger.getAddressPubKeyEd25519(bip32Path, false)
 	return pubkey, err
-}
-
-func validHRPByte(b byte) bool {
-	// https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki
-	return b >= 33 && b <= 126
 }
 
 // GetAddressPubKeyEd25519 returns the pubkey (compressed) and address (bech(
 // this command requires user confirmation in the device
-func (ledger *LedgerOasis) GetAddressPubKeyEd25519(bip32Path []uint32, hrp string) (pubkey []byte, addr string, err error) {
-	return ledger.getAddressPubKeyEd25519(bip32Path, hrp, true)
+func (ledger *LedgerOasis) GetAddressPubKeyEd25519(bip32Path []uint32) (pubkey []byte, addr string, err error) {
+	return ledger.getAddressPubKeyEd25519(bip32Path, true)
 }
 
-func (ledger *LedgerOasis) GetBip32bytes(bip32Path []uint32, hardenCount int) ([]byte, error) {
-	pathBytes, err := GetBip32bytes(bip32Path, hardenCount)
+func (ledger *LedgerOasis) GetBip44bytes(bip32Path []uint32, hardenCount int) ([]byte, error) {
+	pathBytes, err := GetBip44bytes(bip32Path, hardenCount)
 	if err != nil {
 		return nil, err
 	}
@@ -144,20 +145,20 @@ func (ledger *LedgerOasis) sign(bip32Path []uint32, transaction []byte) ([]byte,
 	for packetIndex <= packetCount {
 		chunk := userMessageChunkSize
 		if packetIndex == 1 {
-			pathBytes, err := ledger.GetBip32bytes(bip32Path, 5)
+			pathBytes, err := ledger.GetBip44bytes(bip32Path, 5)
 			if err != nil {
 				return nil, err
 			}
-			header := []byte{CLA, INSSignEd25519, 0, 0, byte(len(pathBytes))}
+			header := []byte{CLA, INSSignEd25519, PayloadChunkInit, 0, byte(len(pathBytes))}
 			message = append(header, pathBytes...)
 		} else {
 			if len(transaction) < userMessageChunkSize {
 				chunk = len(transaction)
 			}
 
-			payloadDesc := byte(1)
+			payloadDesc := byte(PayloadChunkAdd)
 			if packetIndex == packetCount {
-				payloadDesc = byte(2)
+				payloadDesc = byte(PayloadChunkLast)
 			}
 
 			header := []byte{CLA, INSSignEd25519, payloadDesc, 0, byte(chunk)}
@@ -170,14 +171,6 @@ func (ledger *LedgerOasis) sign(bip32Path []uint32, transaction []byte) ([]byte,
 			if err.Error() == "[APDU_CODE_BAD_KEY_HANDLE] The parameters in the data field are incorrect" {
 				// In this special case, we can extract additional info
 				errorMsg := string(response)
-				switch errorMsg {
-				case "ERROR: JSMN_ERROR_NOMEM":
-					return nil, fmt.Errorf("Not enough tokens were provided")
-				case "PARSER ERROR: JSMN_ERROR_INVAL":
-					return nil, fmt.Errorf("Unexpected character in JSON string")
-				case "PARSER ERROR: JSMN_ERROR_PART":
-					return nil, fmt.Errorf("The JSON string is not a complete.")
-				}
 				return nil, fmt.Errorf(errorMsg)
 			}
 			if err.Error() == "[APDU_CODE_DATA_INVALID] Referenced data reversibly blocked (invalidated)" {
@@ -199,19 +192,8 @@ func (ledger *LedgerOasis) sign(bip32Path []uint32, transaction []byte) ([]byte,
 
 // GetAddressPubKeyEd25519 returns the pubkey (compressed) and address (bech(
 // this command requires user confirmation in the device
-func (ledger *LedgerOasis) getAddressPubKeyEd25519(bip32Path []uint32, hrp string, requireConfirmation bool) (pubkey []byte, addr string, err error) {
-	if len(hrp) > 83 {
-		return nil, "", fmt.Errorf("hrp len should be <10")
-	}
-
-	hrpBytes := []byte(hrp)
-	for _, b := range hrpBytes {
-		if !validHRPByte(b) {
-			return nil, "", fmt.Errorf("all characters in the HRP must be in the [33, 126] range")
-		}
-	}
-
-	pathBytes, err := ledger.GetBip32bytes(bip32Path, 5)
+func (ledger *LedgerOasis) getAddressPubKeyEd25519(bip32Path []uint32, requireConfirmation bool) (pubkey []byte, addr string, err error) {
+	pathBytes, err := ledger.GetBip44bytes(bip32Path, 5)
 	if err != nil {
 		return nil, "", err
 	}
@@ -223,9 +205,7 @@ func (ledger *LedgerOasis) getAddressPubKeyEd25519(bip32Path []uint32, hrp strin
 
 	// Prepare message
 	header := []byte{CLA, INSGetAddrEd25519, p1, 0, 0}
-	message := append(header, byte(len(hrpBytes)))
-	message = append(message, hrpBytes...)
-	message = append(message, pathBytes...)
+	message := append(header, pathBytes...)
 	message[4] = byte(len(message) - len(header)) // update length
 
 	response, err := ledger.api.Exchange(message)
@@ -233,7 +213,7 @@ func (ledger *LedgerOasis) getAddressPubKeyEd25519(bip32Path []uint32, hrp strin
 	if err != nil {
 		return nil, "", err
 	}
-	if len(response) < 35+len(hrp) {
+	if len(response) < 39 {
 		return nil, "", fmt.Errorf("Invalid response")
 	}
 
