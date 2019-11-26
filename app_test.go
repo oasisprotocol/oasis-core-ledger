@@ -56,7 +56,7 @@ func Test_UserGetVersion(t *testing.T) {
 
 	assert.Equal(t, uint8(0x0), version.AppMode, "TESTING MODE ENABLED!!")
 	assert.Equal(t, uint8(0x0), version.Major, "Wrong Major version")
-	assert.Equal(t, uint8(0x3), version.Minor, "Wrong Minor version")
+	assert.Equal(t, uint8(0x5), version.Minor, "Wrong Minor version")
 	assert.Equal(t, uint8(0x0), version.Patch, "Wrong Patch version")
 }
 
@@ -228,7 +228,6 @@ func Test_Sign(t *testing.T) {
 }
 
 func Test_Sign_Fails(t *testing.T) {
-	t.Skip("Skipping until CBOR txs are well defined")
 	app, err := FindLedgerOasisApp()
 	if err != nil {
 		t.Fatalf(err.Error())
@@ -239,16 +238,22 @@ func Test_Sign_Fails(t *testing.T) {
 
 	path := []uint32{44, 118, 0, 0, 5}
 
-	// TODO: Use an invalid CBOR tx here to check error condition
 	message := getDummyTx()
 	garbage := []byte{65}
 	message = append(garbage, message...)
 
 	_, err = app.SignEd25519(path, message)
 	assert.Error(t, err)
+	errMessage := err.Error()
+	assert.Equal(t, errMessage, "Unexpected data type")
 
-	// TODO: Check error message
+	message = getDummyTx()
+	garbage = []byte{65}
+	message = append(message, garbage...)
 
-	//	errMessage := err.Error()
-	//	assert.Fail(t, "Unexpected error message returned: " + errMessage )
+	_, err = app.SignEd25519(path, message)
+	assert.Error(t, err)
+	errMessage = err.Error()
+	assert.Equal(t, errMessage, "Unexpected data type")
+
 }
