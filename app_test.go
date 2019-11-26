@@ -19,12 +19,15 @@ package ledger_oasis_go
 import (
 	"crypto/ed25519"
 	"crypto/sha512"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
+
+var coinContext = "oasis-core/consensus: tx for chain test-chain-id"
 
 // Ledger Test Mnemonic: equip will roof matter pink blind book anxiety banner elbow sun young
 
@@ -53,8 +56,8 @@ func Test_UserGetVersion(t *testing.T) {
 
 	assert.Equal(t, uint8(0x0), version.AppMode, "TESTING MODE ENABLED!!")
 	assert.Equal(t, uint8(0x0), version.Major, "Wrong Major version")
-	assert.Equal(t, uint8(0x0), version.Minor, "Wrong Minor version")
-	assert.Equal(t, uint8(0x1), version.Patch, "Wrong Patch version")
+	assert.Equal(t, uint8(0x5), version.Minor, "Wrong Minor version")
+	assert.Equal(t, uint8(0x0), version.Patch, "Wrong Patch version")
 }
 
 func Test_UserGetPublicKey(t *testing.T) {
@@ -92,10 +95,9 @@ func Test_GetAddressPubKeyEd25519_Zero(t *testing.T) {
 
 	app.api.Logging = true
 
-	hrp := "oasis"
 	path := []uint32{44, 118, 0, 0, 0}
 
-	pubKey, addr, err := app.GetAddressPubKeyEd25519(path, hrp)
+	pubKey, addr, err := app.GetAddressPubKeyEd25519(path)
 	if err != nil {
 		t.Fatalf("Detected error, err: %s\n", err.Error())
 	}
@@ -106,7 +108,7 @@ func Test_GetAddressPubKeyEd25519_Zero(t *testing.T) {
 	assert.Equal(t, 32, len(pubKey), "Public key has wrong length: %x, expected length: %x\n", pubKey, 32)
 
 	assert.Equal(t, "2dc2ba9143c81c44830da47b0962ed026ba3e2e3d7a24d4a6ff1a418e9d154be", hex.EncodeToString(pubKey), "Unexpected pubkey")
-	assert.Equal(t, "oasis19hpt4y2reqwyfqcd53asjchdqf468chrrk9su7", addr, "Unexpected addr")
+	assert.Equal(t, "oasis19hpt4y2reqwyfqcd53asjchdqf468chr673y6jn07xjp36w32jlscf0me", addr, "Unexpected addr")
 }
 
 func Test_GetAddressPubKeyEd25519(t *testing.T) {
@@ -118,10 +120,9 @@ func Test_GetAddressPubKeyEd25519(t *testing.T) {
 
 	app.api.Logging = true
 
-	hrp := "oasis"
 	path := []uint32{44, 118, 5, 0, 21}
 
-	pubKey, addr, err := app.GetAddressPubKeyEd25519(path, hrp)
+	pubKey, addr, err := app.GetAddressPubKeyEd25519(path)
 	if err != nil {
 		t.Fatalf("Detected error, err: %s\n", err.Error())
 	}
@@ -132,7 +133,7 @@ func Test_GetAddressPubKeyEd25519(t *testing.T) {
 	assert.Equal(t, 32, len(pubKey), "Public key has wrong length: %x, expected length: %x\n", pubKey, 32)
 
 	assert.Equal(t, "3fbe6fd4cba729c23400510bbc49f90ec76d44204e7e921795e764e6a51fe387", hex.EncodeToString(pubKey), "Unexpected pubkey")
-	assert.Equal(t, "oasis187lxl4xt5u5uydqq2y9mcj0epmrk63pqkfe7cv", addr, "Unexpected addr")
+	assert.Equal(t, "oasis187lxl4xt5u5uydqq2y9mcj0epmrk63pqfelfy9u4uajwdfgluwrk0e5vx", addr, "Unexpected addr")
 }
 
 func Test_UserPK_HDPaths(t *testing.T) {
@@ -182,7 +183,10 @@ func Test_UserPK_HDPaths(t *testing.T) {
 }
 
 func getDummyTx() []byte {
-	return []byte("12345678")			// TODO: Use a CBOR tx here
+	base64tx := "pGNmZWWiY2dhcwBmYW1vdW50QGRib2R5omd4ZmVyX3RvWCBkNhaFWEyIEubmS3EVtRLTanD3U+vDV5fke4Obyq" +
+		"83CWt4ZmVyX3Rva2Vuc0Blbm9uY2UAZm1ldGhvZHBzdGFraW5nLlRyYW5zZmVy"
+	tx, _ := base64.StdEncoding.DecodeString(base64tx)
+	return tx;
 }
 
 func Test_Sign(t *testing.T) {
@@ -213,7 +217,9 @@ func Test_Sign(t *testing.T) {
 		return
 	}
 
+	message = append([]byte(coinContext), message...)
 	hash := sha512.Sum512(message)
+
 	verified := ed25519.Verify(pubKey, hash[:], signature)
 	if !verified {
 		t.Fatalf("[VerifySig] Error verifying signature")
@@ -222,8 +228,6 @@ func Test_Sign(t *testing.T) {
 }
 
 func Test_Sign_Fails(t *testing.T) {
-	t.Skip("Skipping until CBOR txs are well defined");
-
 	app, err := FindLedgerOasisApp()
 	if err != nil {
 		t.Fatalf(err.Error())
@@ -234,16 +238,22 @@ func Test_Sign_Fails(t *testing.T) {
 
 	path := []uint32{44, 118, 0, 0, 5}
 
-	// TODO: Use an invalid CBOR tx here to check error condition
 	message := getDummyTx()
 	garbage := []byte{65}
 	message = append(garbage, message...)
 
 	_, err = app.SignEd25519(path, message)
 	assert.Error(t, err)
+	errMessage := err.Error()
+	assert.Equal(t, errMessage, "Unexpected data type")
 
-	// TODO: Check error message
+	message = getDummyTx()
+	garbage = []byte{65}
+	message = append(message, garbage...)
 
-//	errMessage := err.Error()
-//	assert.Fail(t, "Unexpected error message returned: " + errMessage )
+	_, err = app.SignEd25519(path, message)
+	assert.Error(t, err)
+	errMessage = err.Error()
+	assert.Equal(t, errMessage, "Unexpected data type")
+
 }
