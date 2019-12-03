@@ -56,7 +56,7 @@ func Test_UserGetVersion(t *testing.T) {
 
 	assert.Equal(t, uint8(0x0), version.AppMode, "TESTING MODE ENABLED!!")
 	assert.Equal(t, uint8(0x0), version.Major, "Wrong Major version")
-	assert.Equal(t, uint8(0x5), version.Minor, "Wrong Minor version")
+	assert.Equal(t, uint8(0x8), version.Minor, "Wrong Minor version")
 	assert.Equal(t, uint8(0x0), version.Patch, "Wrong Patch version")
 }
 
@@ -186,7 +186,7 @@ func getDummyTx() []byte {
 	base64tx := "pGNmZWWiY2dhcwBmYW1vdW50QGRib2R5omd4ZmVyX3RvWCBkNhaFWEyIEubmS3EVtRLTanD3U+vDV5fke4Obyq" +
 		"83CWt4ZmVyX3Rva2Vuc0Blbm9uY2UAZm1ldGhvZHBzdGFraW5nLlRyYW5zZmVy"
 	tx, _ := base64.StdEncoding.DecodeString(base64tx)
-	return tx;
+	return tx
 }
 
 func Test_Sign(t *testing.T) {
@@ -201,7 +201,7 @@ func Test_Sign(t *testing.T) {
 	path := []uint32{44, 118, 0, 0, 5}
 
 	message := getDummyTx()
-	signature, err := app.SignEd25519(path, message)
+	signature, err := app.SignEd25519(path, []byte(coinContext), message)
 	if err != nil {
 		t.Fatalf("[Sign] Error: %s\n", err.Error())
 	}
@@ -242,7 +242,7 @@ func Test_Sign_Fails(t *testing.T) {
 	garbage := []byte{65}
 	message = append(garbage, message...)
 
-	_, err = app.SignEd25519(path, message)
+	_, err = app.SignEd25519(path, []byte(coinContext), message)
 	assert.Error(t, err)
 	errMessage := err.Error()
 	assert.Equal(t, errMessage, "Unexpected data type")
@@ -251,9 +251,9 @@ func Test_Sign_Fails(t *testing.T) {
 	garbage = []byte{65}
 	message = append(message, garbage...)
 
-	_, err = app.SignEd25519(path, message)
+	_, err = app.SignEd25519(path, []byte(coinContext), message)
 	assert.Error(t, err)
 	errMessage = err.Error()
-	assert.Equal(t, errMessage, "Unexpected data type")
+	assert.Equal(t, errMessage, "Unexpected data at end")
 
 }

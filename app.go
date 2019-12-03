@@ -108,25 +108,25 @@ func (ledger *LedgerOasis) GetVersion() (*VersionInfo, error) {
 
 // SignEd25519 signs a transaction using Oasis user app
 // this command requires user confirmation in the device
-func (ledger *LedgerOasis) SignEd25519(bip32Path []uint32, transaction []byte) ([]byte, error) {
-	return ledger.sign(bip32Path, transaction)
+func (ledger *LedgerOasis) SignEd25519(bip44Path []uint32, context []byte, transaction []byte) ([]byte, error) {
+	return ledger.sign(bip44Path, context, transaction)
 }
 
-// GetPublicKeyEd25519 retrieves the public key for the corresponding bip32 derivation path (compressed)
+// GetPublicKeyEd25519 retrieves the public key for the corresponding bip44 derivation path
 // this command DOES NOT require user confirmation in the device
-func (ledger *LedgerOasis) GetPublicKeyEd25519(bip32Path []uint32) ([]byte, error) {
-	pubkey, _, err := ledger.getAddressPubKeyEd25519(bip32Path, false)
+func (ledger *LedgerOasis) GetPublicKeyEd25519(bip44Path []uint32) ([]byte, error) {
+	pubkey, _, err := ledger.getAddressPubKeyEd25519(bip44Path, false)
 	return pubkey, err
 }
 
 // GetAddressPubKeyEd25519 returns the pubkey (compressed) and address (bech(
 // this command requires user confirmation in the device
-func (ledger *LedgerOasis) GetAddressPubKeyEd25519(bip32Path []uint32) (pubkey []byte, addr string, err error) {
-	return ledger.getAddressPubKeyEd25519(bip32Path, true)
+func (ledger *LedgerOasis) GetAddressPubKeyEd25519(bip44Path []uint32) (pubkey []byte, addr string, err error) {
+	return ledger.getAddressPubKeyEd25519(bip44Path, true)
 }
 
-func (ledger *LedgerOasis) GetBip44bytes(bip32Path []uint32, hardenCount int) ([]byte, error) {
-	pathBytes, err := GetBip44bytes(bip32Path, hardenCount)
+func (ledger *LedgerOasis) GetBip44bytes(bip44Path []uint32, hardenCount int) ([]byte, error) {
+	pathBytes, err := GetBip44bytes(bip44Path, hardenCount)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,11 @@ func (ledger *LedgerOasis) GetBip44bytes(bip32Path []uint32, hardenCount int) ([
 	return pathBytes, nil
 }
 
-func (ledger *LedgerOasis) sign(bip32Path []uint32, transaction []byte) ([]byte, error) {
+func (ledger *LedgerOasis) sign(bip44Path []uint32, context []byte, transaction []byte) ([]byte, error) {
+	if len(context) > 64 {
+		return nil, fmt.Errorf("Maximum supported context size is 64 bytes")
+	}
+
 	var packetIndex byte = 1
 	var packetCount = 1 + byte(math.Ceil(float64(len(transaction))/float64(userMessageChunkSize)))
 
@@ -145,12 +149,15 @@ func (ledger *LedgerOasis) sign(bip32Path []uint32, transaction []byte) ([]byte,
 	for packetIndex <= packetCount {
 		chunk := userMessageChunkSize
 		if packetIndex == 1 {
-			pathBytes, err := ledger.GetBip44bytes(bip32Path, 5)
+			pathBytes, err := ledger.GetBip44bytes(bip44Path, 5)
 			if err != nil {
 				return nil, err
 			}
-			header := []byte{CLA, INSSignEd25519, PayloadChunkInit, 0, byte(len(pathBytes))}
+			payloadLen := byte(len(pathBytes) + 1 + len(context))
+			header := []byte{CLA, INSSignEd25519, PayloadChunkInit, 0, payloadLen}
 			message = append(header, pathBytes...)
+			message = append(message, byte(len(context)))
+			message = append(message, context...)
 		} else {
 			if len(transaction) < userMessageChunkSize {
 				chunk = len(transaction)
@@ -192,8 +199,8 @@ func (ledger *LedgerOasis) sign(bip32Path []uint32, transaction []byte) ([]byte,
 
 // GetAddressPubKeyEd25519 returns the pubkey (compressed) and address (bech(
 // this command requires user confirmation in the device
-func (ledger *LedgerOasis) getAddressPubKeyEd25519(bip32Path []uint32, requireConfirmation bool) (pubkey []byte, addr string, err error) {
-	pathBytes, err := ledger.GetBip44bytes(bip32Path, 5)
+func (ledger *LedgerOasis) getAddressPubKeyEd25519(bip44Path []uint32, requireConfirmation bool) (pubkey []byte, addr string, err error) {
+	pathBytes, err := ledger.GetBip44bytes(bip44Path, 5)
 	if err != nil {
 		return nil, "", err
 	}

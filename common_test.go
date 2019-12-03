@@ -29,9 +29,9 @@ func Test_PrintVersion(t *testing.T) {
 }
 
 func Test_PathGeneration0(t *testing.T) {
-	bip32Path := []uint32{44, 100, 0, 0, 0}
+	bip44Path := []uint32{44, 100, 0, 0, 0}
 
-	pathBytes, err := GetBip44bytes(bip32Path, 0)
+	pathBytes, err := GetBip44bytes(bip44Path, 0)
 
 	if err != nil {
 		t.Fatalf( "Detected error, err: %s\n", err.Error())
@@ -53,9 +53,9 @@ func Test_PathGeneration0(t *testing.T) {
 }
 
 func Test_PathGeneration2(t *testing.T) {
-	bip32Path := []uint32{44, 123, 0, 0, 0}
+	bip44Path := []uint32{44, 123, 0, 0, 0}
 
-	pathBytes, err := GetBip44bytes(bip32Path, 2)
+	pathBytes, err := GetBip44bytes(bip44Path, 2)
 
 	if err != nil {
 		t.Fatalf("Detected error, err: %s\n", err.Error())
@@ -77,9 +77,9 @@ func Test_PathGeneration2(t *testing.T) {
 }
 
 func Test_PathGeneration3(t *testing.T) {
-	bip32Path := []uint32{44, 123, 0, 0, 0}
+	bip44Path := []uint32{44, 123, 0, 0, 0}
 
-	pathBytes, err := GetBip44bytes(bip32Path, 3)
+	pathBytes, err := GetBip44bytes(bip44Path, 3)
 
 	if err != nil {
 		t.Fatalf("Detected error, err: %s\n", err.Error())
