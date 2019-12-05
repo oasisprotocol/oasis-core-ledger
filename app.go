@@ -87,7 +87,7 @@ func ConnectLedgerOasisApp(seekingAddress string, path []uint32) (*LedgerOasis, 
 			defer app.Close()
 			continue
 		}
-		if address == seekingAddress {
+		if address == "" || address == seekingAddress {
 			return &app, nil
 		}
 	}
