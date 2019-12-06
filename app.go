@@ -18,9 +18,8 @@ package ledger_oasis_go
 
 import (
 	"fmt"
-	"math"
-
 	"github.com/zondax/ledger-go"
+	"math"
 )
 
 const (
@@ -47,13 +46,14 @@ type LedgerOasis struct {
 
 // Displays existing Ledger Oasis apps by address
 func ListOasisDevices(path []uint32) {
-	for _, d := range ledger_go.FindLedgerDevices() {
-		device, err := d.Open()
+	for i := uint(0); i < ledger_go.CountLedgerDevices(); i += 1 {
+		ledgerDevice, err := ledger_go.GetLedger(i)
 		if err != nil {
 			continue
 		}
-		ledgerAPI := ledger_go.NewLedger(device)
-		app := LedgerOasis{ledgerAPI, VersionInfo{}}
+		defer ledgerDevice.Close()
+
+		app := LedgerOasis{ledgerDevice, VersionInfo{}}
 		defer app.Close()
 
 		appVersion, err := app.GetVersion()
@@ -74,14 +74,14 @@ func ListOasisDevices(path []uint32) {
 
 // ConnectLedgerOasisApp connects to Oasis app based on address
 func ConnectLedgerOasisApp(seekingAddress string, path []uint32) (*LedgerOasis, error) {
-	for _, d := range ledger_go.FindLedgerDevices() {
-		device, err := d.Open()
+	for i := uint(0); i < ledger_go.CountLedgerDevices(); i += 1 {
+		ledgerDevice, err := ledger_go.GetLedger(i)
 		if err != nil {
 			continue
 		}
-		ledgerAPI := ledger_go.NewLedger(device)
-		app := LedgerOasis{ledgerAPI, VersionInfo{}}
+		defer ledgerDevice.Close()
 
+		app := LedgerOasis{ledgerDevice, VersionInfo{}}
 		_, address, err := app.GetAddressPubKeyEd25519(path)
 		if err != nil {
 			defer app.Close()
