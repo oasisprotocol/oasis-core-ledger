@@ -18,9 +18,8 @@ package ledger_oasis_go
 
 import (
 	"fmt"
+	"github.com/zondax/ledger-go"
 	"math"
-
-	"github.com/cosmos/ledger-go"
 )
 
 const (
@@ -43,6 +42,56 @@ const (
 type LedgerOasis struct {
 	api     *ledger_go.Ledger
 	version VersionInfo
+}
+
+// Displays existing Ledger Oasis apps by address
+func ListOasisDevices(path []uint32) {
+	for i := uint(0); i < ledger_go.CountLedgerDevices(); i += 1 {
+		ledgerDevice, err := ledger_go.GetLedger(i)
+		if err != nil {
+			continue
+		}
+		defer ledgerDevice.Close()
+
+		app := LedgerOasis{ledgerDevice, VersionInfo{}}
+		defer app.Close()
+
+		appVersion, err := app.GetVersion()
+		if err != nil {
+			continue
+		}
+
+		_, address, err := app.GetAddressPubKeyEd25519(path)
+		if err != nil {
+			continue
+		}
+
+		fmt.Printf("============ Device found\n")
+		fmt.Printf("Oasis App Version : %x\n", appVersion)
+		fmt.Printf("Oasis App Address : %s\n", address)
+	}
+}
+
+// ConnectLedgerOasisApp connects to Oasis app based on address
+func ConnectLedgerOasisApp(seekingAddress string, path []uint32) (*LedgerOasis, error) {
+	for i := uint(0); i < ledger_go.CountLedgerDevices(); i += 1 {
+		ledgerDevice, err := ledger_go.GetLedger(i)
+		if err != nil {
+			continue
+		}
+		defer ledgerDevice.Close()
+
+		app := LedgerOasis{ledgerDevice, VersionInfo{}}
+		_, address, err := app.GetAddressPubKeyEd25519(path)
+		if err != nil {
+			defer app.Close()
+			continue
+		}
+		if address == "" || address == seekingAddress {
+			return &app, nil
+		}
+	}
+	return nil, fmt.Errorf("no Oasis app with specified address found")
 }
 
 // FindLedgerOasisApp finds the Oasis app running in a Ledger device
