@@ -79,7 +79,6 @@ func ConnectLedgerOasisApp(seekingAddress string, path []uint32) (*LedgerOasis, 
 		if err != nil {
 			continue
 		}
-		defer ledgerDevice.Close()
 
 		app := LedgerOasis{ledgerDevice, VersionInfo{}}
 		_, address, err := app.GetAddressPubKeyEd25519(path)
@@ -87,7 +86,7 @@ func ConnectLedgerOasisApp(seekingAddress string, path []uint32) (*LedgerOasis, 
 			defer app.Close()
 			continue
 		}
-		if address == "" || address == seekingAddress {
+		if seekingAddress == "" || address == seekingAddress {
 			return &app, nil
 		}
 	}
