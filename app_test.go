@@ -136,6 +136,31 @@ func Test_GetAddressPubKeyEd25519(t *testing.T) {
 	assert.Equal(t, "oasis187lxl4xt5u5uydqq2y9mcj0epmrk63pqfelfy9u4uajwdfgluwrk0e5vx", addr, "Unexpected addr")
 }
 
+func Test_ShowAddressPubKeyEd25519(t *testing.T) {
+	app, err := FindLedgerOasisApp()
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	defer app.Close()
+
+	app.api.Logging = true
+
+	path := []uint32{44, 118, 5, 0, 21}
+
+	pubKey, addr, err := app.ShowAddressPubKeyEd25519(path)
+	if err != nil {
+		t.Fatalf("Detected error, err: %s\n", err.Error())
+	}
+
+	fmt.Printf("PUBLIC KEY : %x\n", pubKey)
+	fmt.Printf("BECH32 ADDR: %s\n", addr)
+
+	assert.Equal(t, 32, len(pubKey), "Public key has wrong length: %x, expected length: %x\n", pubKey, 32)
+
+	assert.Equal(t, "3fbe6fd4cba729c23400510bbc49f90ec76d44204e7e921795e764e6a51fe387", hex.EncodeToString(pubKey), "Unexpected pubkey")
+	assert.Equal(t, "oasis187lxl4xt5u5uydqq2y9mcj0epmrk63pqfelfy9u4uajwdfgluwrk0e5vx", addr, "Unexpected addr")
+}
+
 func Test_UserPK_HDPaths(t *testing.T) {
 	app, err := FindLedgerOasisApp()
 	if err != nil {
