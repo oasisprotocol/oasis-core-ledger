@@ -251,7 +251,7 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context []byte, transaction 
 	return finalResponse, nil
 }
 
-// GetAddressPubKeyEd25519 returns the pubkey and address (bech32)
+// retrieveAddressPubKeyEd25519 returns the pubkey and address (bech32)
 func (ledger *LedgerOasis) retrieveAddressPubKeyEd25519(bip44Path []uint32, requireConfirmation bool) (pubkey []byte, addr string, err error) {
 	pathBytes, err := ledger.GetBip44bytes(bip44Path, 5)
 	if err != nil {
