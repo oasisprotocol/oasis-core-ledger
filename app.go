@@ -163,14 +163,20 @@ func (ledger *LedgerOasis) SignEd25519(bip44Path []uint32, context []byte, trans
 // GetPublicKeyEd25519 retrieves the public key for the corresponding bip44 derivation path
 // this command DOES NOT require user confirmation in the device
 func (ledger *LedgerOasis) GetPublicKeyEd25519(bip44Path []uint32) ([]byte, error) {
-	pubkey, _, err := ledger.getAddressPubKeyEd25519(bip44Path, false)
+	pubkey, _, err := ledger.retrieveAddressPubKeyEd25519(bip44Path, false)
 	return pubkey, err
 }
 
-// GetAddressPubKeyEd25519 returns the pubkey (compressed) and address (bech(
-// this command requires user confirmation in the device
+// GetAddressPubKeyEd25519 returns the pubkey and address (bech32)
+// this command does not require user confirmation
 func (ledger *LedgerOasis) GetAddressPubKeyEd25519(bip44Path []uint32) (pubkey []byte, addr string, err error) {
-	return ledger.getAddressPubKeyEd25519(bip44Path, true)
+	return ledger.retrieveAddressPubKeyEd25519(bip44Path, false)
+}
+
+// ShowAddressPubKeyEd25519 returns the pubkey (compressed) and address (bech(
+// this command requires user confirmation in the device
+func (ledger *LedgerOasis) ShowAddressPubKeyEd25519(bip44Path []uint32) (pubkey []byte, addr string, err error) {
+	return ledger.retrieveAddressPubKeyEd25519(bip44Path, true)
 }
 
 func (ledger *LedgerOasis) GetBip44bytes(bip44Path []uint32, hardenCount int) ([]byte, error) {
@@ -245,9 +251,8 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context []byte, transaction 
 	return finalResponse, nil
 }
 
-// GetAddressPubKeyEd25519 returns the pubkey (compressed) and address (bech(
-// this command requires user confirmation in the device
-func (ledger *LedgerOasis) getAddressPubKeyEd25519(bip44Path []uint32, requireConfirmation bool) (pubkey []byte, addr string, err error) {
+// retrieveAddressPubKeyEd25519 returns the pubkey and address (bech32)
+func (ledger *LedgerOasis) retrieveAddressPubKeyEd25519(bip44Path []uint32, requireConfirmation bool) (pubkey []byte, addr string, err error) {
 	pathBytes, err := ledger.GetBip44bytes(bip44Path, 5)
 	if err != nil {
 		return nil, "", err
