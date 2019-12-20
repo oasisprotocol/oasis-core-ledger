@@ -19,6 +19,7 @@ package ledger_oasis_go
 import (
 	"encoding/binary"
 	"fmt"
+	"math"
 )
 
 // VersionInfo contains app version information
@@ -86,4 +87,39 @@ func GetBip44bytes(bip44Path []uint32, hardenCount int) ([]byte, error) {
 		binary.LittleEndian.PutUint32(message[pos:], value)
 	}
 	return message, nil
+}
+
+func prepareChunks(bip44PathBytes []byte, context []byte, transaction []byte) ([][]byte, error) {
+	if len(context) > 255 {
+		return nil, fmt.Errorf("Maximum supported context size is 255 bytes")
+	}
+
+	var packetIndex int = 0
+	// first chunk + number of chunk needed for context + transaction
+	var packetCount int = 1 + int(math.Ceil(float64(len(transaction) + len(context))/float64(userMessageChunkSize)))
+
+	chunks := make([][]byte, packetCount)
+
+	// First chunk is path
+	chunks[0] = bip44PathBytes
+	packetIndex++
+
+	var contextSizeByte []byte = []byte{byte(len(context))}
+	var body []byte = append(contextSizeByte, context...)
+	body = append(body, transaction...)
+
+	for packetIndex < packetCount {
+		var start int = (packetIndex - 1) * userMessageChunkSize
+		var end int =  (packetIndex * userMessageChunkSize) - 1
+
+		if end >= len(body) {
+			chunks[packetIndex] = body[start:]
+		} else {
+			chunks[packetIndex] = body[start:end]
+		}
+		packetIndex++
+	}
+
+
+	return chunks, nil
 }
