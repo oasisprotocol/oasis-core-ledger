@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"strings"
 )
 
 func Test_PrintVersion(t *testing.T) {
@@ -98,4 +99,63 @@ func Test_PathGeneration3(t *testing.T) {
 		"2c0000807b000080000000800000000000000000",
 		fmt.Sprintf("%x", pathBytes),
 		"Unexpected PathBytes\n")
+}
+
+func Test_ChunkGeneration(t *testing.T) {
+	bip44Path := []uint32{44, 123, 0, 0, 0}
+
+	pathBytes, err := GetBip44bytes(bip44Path, 0)
+	if err != nil {
+		t.Fatalf("Detected error, err: %s\n", err.Error())
+	}
+
+	message := getDummyTx()
+
+	chunks, err := prepareChunks(pathBytes, []byte(coinContext), message)
+
+	assert.Equal(
+		t,
+		chunks[0],
+		pathBytes,
+		"First chunk should be pathBytes\n")
+}
+
+func Test_ChunkGeneration_invalidContextLength(t *testing.T) {
+	bip44Path := []uint32{44, 123, 0, 0, 0}
+
+	pathBytes, err := GetBip44bytes(bip44Path, 0)
+	if err != nil {
+		t.Fatalf("Detected error, err: %s\n", err.Error())
+	}
+
+	message := getDummyTx()
+
+	var coinContext string = strings.Repeat("A", 256)
+
+	_, errChunk := prepareChunks(pathBytes, []byte(coinContext), message)
+
+	fmt.Printf("Error: %s\n", errChunk)
+
+	assert.Error(t, errChunk)
+}
+
+func Test_ChunkGeneration_contextLenghtIsZero(t *testing.T) {
+	bip44Path := []uint32{44, 123, 0, 0, 0}
+
+	pathBytes, err := GetBip44bytes(bip44Path, 0)
+	if err != nil {
+		t.Fatalf("Detected error, err: %s\n", err.Error())
+	}
+
+	message := getDummyTx()
+
+	var coinContext string = ""
+
+	chunks, _ := prepareChunks(pathBytes, []byte(coinContext), message)
+
+	assert.Equal(
+		t,
+		byte(0),
+		chunks[1][0],
+		"First byte should be 0 because context is empty\n")
 }

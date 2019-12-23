@@ -19,7 +19,6 @@ package ledger_oasis_go
 import (
 	"fmt"
 	"github.com/zondax/ledger-go"
-	"math"
 )
 
 const (
@@ -189,41 +188,38 @@ func (ledger *LedgerOasis) GetBip44bytes(bip44Path []uint32, hardenCount int) ([
 }
 
 func (ledger *LedgerOasis) sign(bip44Path []uint32, context []byte, transaction []byte) ([]byte, error) {
-	if len(context) > 64 {
-		return nil, fmt.Errorf("Maximum supported context size is 64 bytes")
+
+	pathBytes, err := ledger.GetBip44bytes(bip44Path, 5)
+	if err != nil {
+		return nil, err
 	}
 
-	var packetIndex byte = 1
-	var packetCount = 1 + byte(math.Ceil(float64(len(transaction))/float64(userMessageChunkSize)))
+	chunks, err := prepareChunks(pathBytes, context, transaction)
+	if err != nil {
+		return nil, err
+	}
 
 	var finalResponse []byte
 
 	var message []byte
 
-	for packetIndex <= packetCount {
-		chunk := userMessageChunkSize
-		if packetIndex == 1 {
-			pathBytes, err := ledger.GetBip44bytes(bip44Path, 5)
-			if err != nil {
-				return nil, err
-			}
-			payloadLen := byte(len(pathBytes) + 1 + len(context))
+	var chunkIndex int = 0
+
+	for chunkIndex < len(chunks) {
+		payloadLen := byte(len(chunks[chunkIndex]))
+
+		if chunkIndex == 0 {
 			header := []byte{CLA, INSSignEd25519, PayloadChunkInit, 0, payloadLen}
-			message = append(header, pathBytes...)
-			message = append(message, byte(len(context)))
-			message = append(message, context...)
+			message = append(header, chunks[chunkIndex]...)
 		} else {
-			if len(transaction) < userMessageChunkSize {
-				chunk = len(transaction)
-			}
 
 			payloadDesc := byte(PayloadChunkAdd)
-			if packetIndex == packetCount {
+			if chunkIndex == (len(chunks) - 1) {
 				payloadDesc = byte(PayloadChunkLast)
 			}
 
-			header := []byte{CLA, INSSignEd25519, payloadDesc, 0, byte(chunk)}
-			message = append(header, transaction[:chunk]...)
+			header := []byte{CLA, INSSignEd25519, payloadDesc, 0, payloadLen}
+			message = append(header, chunks[chunkIndex]...)
 		}
 
 		response, err := ledger.api.Exchange(message)
@@ -242,10 +238,7 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context []byte, transaction 
 		}
 
 		finalResponse = response
-		if packetIndex > 1 {
-			transaction = transaction[chunk:]
-		}
-		packetIndex++
+		chunkIndex++
 
 	}
 	return finalResponse, nil
