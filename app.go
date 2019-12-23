@@ -27,8 +27,6 @@ const (
 	INSGetVersion     = 0
 	INSGetAddrEd25519 = 1
 	INSSignEd25519    = 2
-
-	userMessageChunkSize = 250
 )
 
 const (

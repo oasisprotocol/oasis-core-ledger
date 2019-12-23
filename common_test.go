@@ -19,8 +19,8 @@ package ledger_oasis_go
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"testing"
 	"strings"
+	"testing"
 )
 
 func Test_PrintVersion(t *testing.T) {
@@ -130,7 +130,7 @@ func Test_ChunkGeneration_invalidContextLength(t *testing.T) {
 
 	message := getDummyTx()
 
-	var coinContext string = strings.Repeat("A", 256)
+	var coinContext = strings.Repeat("A", 256)
 
 	_, errChunk := prepareChunks(pathBytes, []byte(coinContext), message)
 
@@ -139,7 +139,7 @@ func Test_ChunkGeneration_invalidContextLength(t *testing.T) {
 	assert.Error(t, errChunk)
 }
 
-func Test_ChunkGeneration_contextLenghtIsZero(t *testing.T) {
+func Test_ChunkGeneration_contextLengthIsZero(t *testing.T) {
 	bip44Path := []uint32{44, 123, 0, 0, 0}
 
 	pathBytes, err := GetBip44bytes(bip44Path, 0)
@@ -149,7 +149,7 @@ func Test_ChunkGeneration_contextLenghtIsZero(t *testing.T) {
 
 	message := getDummyTx()
 
-	var coinContext string = ""
+	var coinContext = ""
 
 	chunks, _ := prepareChunks(pathBytes, []byte(coinContext), message)
 

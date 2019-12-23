@@ -22,6 +22,10 @@ import (
 	"math"
 )
 
+const (
+	userMessageChunkSize = 250
+)
+
 // VersionInfo contains app version information
 type VersionInfo struct {
 	AppMode uint8
@@ -91,12 +95,12 @@ func GetBip44bytes(bip44Path []uint32, hardenCount int) ([]byte, error) {
 
 func prepareChunks(bip44PathBytes []byte, context []byte, transaction []byte) ([][]byte, error) {
 	if len(context) > 255 {
-		return nil, fmt.Errorf("Maximum supported context size is 255 bytes")
+		return nil, fmt.Errorf("maximum supported context size is 255 bytes")
 	}
 
-	var packetIndex int = 0
+	var packetIndex = 0
 	// first chunk + number of chunk needed for context + transaction
-	var packetCount int = 1 + int(math.Ceil(float64(len(transaction) + len(context))/float64(userMessageChunkSize)))
+	var packetCount = 1 + int(math.Ceil(float64(len(transaction) + len(context))/float64(userMessageChunkSize)))
 
 	chunks := make([][]byte, packetCount)
 
@@ -104,13 +108,13 @@ func prepareChunks(bip44PathBytes []byte, context []byte, transaction []byte) ([
 	chunks[0] = bip44PathBytes
 	packetIndex++
 
-	var contextSizeByte []byte = []byte{byte(len(context))}
-	var body []byte = append(contextSizeByte, context...)
+	var contextSizeByte = []byte{byte(len(context))}
+	var body = append(contextSizeByte, context...)
 	body = append(body, transaction...)
 
 	for packetIndex < packetCount {
-		var start int = (packetIndex - 1) * userMessageChunkSize
-		var end int =  (packetIndex * userMessageChunkSize) - 1
+		var start = (packetIndex - 1) * userMessageChunkSize
+		var end =  (packetIndex * userMessageChunkSize) - 1
 
 		if end >= len(body) {
 			chunks[packetIndex] = body[start:]
