@@ -37,14 +37,16 @@ const (
 
 // LedgerOasis represents a connection to the Ledger app
 type LedgerOasis struct {
-	api     *ledger_go.Ledger
+	device  ledger_go.LedgerDevice
 	version VersionInfo
 }
 
 // Displays existing Ledger Oasis apps by address
 func ListOasisDevices(path []uint32) {
-	for i := uint(0); i < ledger_go.CountLedgerDevices(); i += 1 {
-		ledgerDevice, err := ledger_go.GetLedger(i)
+	ledgerAdmin := ledger_go.NewLedgerAdmin()
+
+	for i := 0; i < ledgerAdmin.CountDevices(); i += 1 {
+		ledgerDevice, err := ledgerAdmin.Connect(i)
 		if err != nil {
 			continue
 		}
@@ -71,8 +73,10 @@ func ListOasisDevices(path []uint32) {
 
 // ConnectLedgerOasisApp connects to Oasis app based on address
 func ConnectLedgerOasisApp(seekingAddress string, path []uint32) (*LedgerOasis, error) {
-	for i := uint(0); i < ledger_go.CountLedgerDevices(); i += 1 {
-		ledgerDevice, err := ledger_go.GetLedger(i)
+	ledgerAdmin := ledger_go.NewLedgerAdmin()
+
+	for i := 0; i < ledgerAdmin.CountDevices(); i += 1 {
+		ledgerDevice, err := ledgerAdmin.Connect(i)
 		if err != nil {
 			continue
 		}
@@ -92,35 +96,37 @@ func ConnectLedgerOasisApp(seekingAddress string, path []uint32) (*LedgerOasis, 
 
 // FindLedgerOasisApp finds the Oasis app running in a Ledger device
 func FindLedgerOasisApp() (*LedgerOasis, error) {
-	ledgerAPI, err := ledger_go.FindLedger()
+	ledgerAdmin := ledger_go.NewLedgerAdmin()
 
-	if err != nil {
-		return nil, err
-	}
-
-	app := LedgerOasis{ledgerAPI, VersionInfo{}}
-	appVersion, err := app.GetVersion()
-
-	if err != nil {
-		defer ledgerAPI.Close()
-		if err.Error() == "[APDU_CODE_CLA_NOT_SUPPORTED] Class not supported" {
-			return nil, fmt.Errorf("are you sure the Oasis app is open?")
+	for i := 0; i < ledgerAdmin.CountDevices(); i += 1 {
+		ledgerDevice, err := ledgerAdmin.Connect(i)
+		if err != nil {
+			continue
 		}
-		return nil, err
+
+		app := LedgerOasis{ledgerDevice, VersionInfo{}}
+
+		appVersion, err := app.GetVersion()
+		if err != nil {
+			app.Close()
+			continue
+		}
+
+		err = app.CheckVersion(*appVersion)
+		if err != nil {
+			app.Close()
+			continue
+		}
+
+		return &app, err
 	}
 
-	err = app.CheckVersion(*appVersion)
-	if err != nil {
-		defer ledgerAPI.Close()
-		return nil, err
-	}
-
-	return &app, err
+	return nil, fmt.Errorf("no Oasis app found")
 }
 
 // Close closes a connection with the Oasis user app
 func (ledger *LedgerOasis) Close() error {
-	return ledger.api.Close()
+	return ledger.device.Close()
 }
 
 // VersionIsSupported returns true if the App version is supported by this library
@@ -131,7 +137,7 @@ func (ledger *LedgerOasis) CheckVersion(ver VersionInfo) error {
 // GetVersion returns the current version of the Oasis user app
 func (ledger *LedgerOasis) GetVersion() (*VersionInfo, error) {
 	message := []byte{CLA, INSGetVersion, 0, 0, 0}
-	response, err := ledger.api.Exchange(message)
+	response, err := ledger.device.Exchange(message)
 
 	if err != nil {
 		return nil, err
@@ -220,7 +226,7 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context []byte, transaction 
 			message = append(header, chunks[chunkIndex]...)
 		}
 
-		response, err := ledger.api.Exchange(message)
+		response, err := ledger.device.Exchange(message)
 		if err != nil {
 			// FIXME: CBOR will be used instead
 			if err.Error() == "[APDU_CODE_BAD_KEY_HANDLE] The parameters in the data field are incorrect" {
@@ -259,7 +265,7 @@ func (ledger *LedgerOasis) retrieveAddressPubKeyEd25519(bip44Path []uint32, requ
 	message := append(header, pathBytes...)
 	message[4] = byte(len(message) - len(header)) // update length
 
-	response, err := ledger.api.Exchange(message)
+	response, err := ledger.device.Exchange(message)
 
 	if err != nil {
 		return nil, "", err
