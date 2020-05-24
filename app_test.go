@@ -48,8 +48,6 @@ func Test_UserGetVersion(t *testing.T) {
 	}
 	defer app.Close()
 
-	app.api.Logging = true
-
 	version, err := app.GetVersion()
 	require.Nil(t, err, "Detected error")
 	fmt.Println(version)
@@ -65,8 +63,6 @@ func Test_UserGetPublicKey(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 	defer app.Close()
-
-	app.api.Logging = true
 
 	path := []uint32{44, 474, 5, 0, 21}
 
@@ -92,8 +88,6 @@ func Test_GetAddressPubKeyEd25519_Zero(t *testing.T) {
 	}
 	defer app.Close()
 
-	app.api.Logging = true
-
 	path := []uint32{44, 474, 0, 0, 0}
 
 	pubKey, addr, err := app.GetAddressPubKeyEd25519(path)
@@ -116,8 +110,6 @@ func Test_GetAddressPubKeyEd25519(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 	defer app.Close()
-
-	app.api.Logging = true
 
 	path := []uint32{44, 474, 5, 0, 21}
 
@@ -142,8 +134,6 @@ func Test_ShowAddressPubKeyEd25519(t *testing.T) {
 	}
 	defer app.Close()
 
-	app.api.Logging = true
-
 	path := []uint32{44, 474, 5, 0, 21}
 
 	pubKey, addr, err := app.ShowAddressPubKeyEd25519(path)
@@ -166,8 +156,6 @@ func Test_UserPK_HDPaths(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 	defer app.Close()
-
-	app.api.Logging = true
 
 	path := []uint32{44, 474, 0, 0, 0}
 
@@ -220,8 +208,6 @@ func Test_Sign(t *testing.T) {
 	}
 	defer app.Close()
 
-	app.api.Logging = true
-
 	path := []uint32{44, 474, 0, 0, 5}
 
 	message := getDummyTx()
@@ -257,8 +243,6 @@ func Test_Sign_Fails(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 	defer app.Close()
-
-	app.api.Logging = true
 
 	path := []uint32{44, 474, 0, 0, 5}
 
