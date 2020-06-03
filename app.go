@@ -17,6 +17,7 @@
 package ledger_oasis_go
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/oasislabs/oasis-core/go/common/crypto/signature"
 	"github.com/oasislabs/oasis-core/go/common/logging"
@@ -52,7 +53,12 @@ type LedgerOasis struct {
 	version VersionInfo
 }
 
-var logger = logging.GetLogger("remote-signer")
+var logger = logging.GetLogger(LogModuleName)
+
+//SetLoggerModule sets logging module
+func SetLoggerModule(module string) {
+	logger = logging.GetLogger(module)
+}
 
 //GetModeForRole returns the app mode compatible with role
 func GetModeForRole(role signature.SignerRole) LedgerAppMode {
@@ -60,7 +66,7 @@ func GetModeForRole(role signature.SignerRole) LedgerAppMode {
 	case signature.SignerConsensus:
 		return ValidatorMode
 	default:
-		return ValidatorMode
+		return ConsumerMode
 	}
 }
 
@@ -191,9 +197,8 @@ func (ledger *LedgerOasis) GetVersion() (*VersionInfo, error) {
 	response, err := ledger.device.Exchange(message)
 
 	logger.Debug("GetVersion requested: \n" +
-				"message: %q\n" +
-				"response:%q\n",
-				message, response)
+		"message: ", hex.EncodeToString(message), "\n",
+		"response: ", hex.EncodeToString(response), "\n")
 
 	if err != nil {
 		logger.Error("error while getting version: %q", err)
@@ -286,9 +291,8 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context []byte, transaction 
 		response, err := ledger.device.Exchange(message)
 
 		logger.Debug("Sign requested: \n" +
-					"message: %q\n" +
-					"response:%q\n",
-					message, response)
+					"message: ", hex.EncodeToString(message), "\n",
+					"response: ", hex.EncodeToString(response), "\n")
 
 		if err != nil {
 			// FIXME: CBOR will be used instead
@@ -330,10 +334,9 @@ func (ledger *LedgerOasis) retrieveAddressPubKeyEd25519(bip44Path []uint32, requ
 
 	response, err := ledger.device.Exchange(message)
 
-	logger.Debug("AddressPubkey requested: \n" +
-				"message: %q\n" +
-				"response:%q\n",
-				message, response)
+	logger.Debug("PubKey requested: \n" +
+		"message: ", hex.EncodeToString(message), "\n",
+		"response: ", hex.EncodeToString(response), "\n")
 
 	if err != nil {
 		return nil, "", err
