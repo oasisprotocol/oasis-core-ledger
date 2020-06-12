@@ -56,7 +56,7 @@ type LedgerOasis struct {
 var logger = logging.GetLogger(LogModuleName)
 
 //SetLoggerModule sets logging module
-func SetLoggerModule(module string) {
+func (ledger *LedgerOasis)SetLoggerModule(module string) {
 	logger = logging.GetLogger(module)
 }
 
@@ -196,9 +196,9 @@ func (ledger *LedgerOasis) GetVersion() (*VersionInfo, error) {
 	message := []byte{ledger.getCLA(), INSGetVersion, 0, 0, 0}
 	response, err := ledger.device.Exchange(message)
 
-	logger.Debug("GetVersion requested: \n" +
-		"message: ", hex.EncodeToString(message), "\n",
-		"response: ", hex.EncodeToString(response), "\n")
+	logger.Debug("GetVersion requested:")
+	logger.Debug("message: "  + hex.EncodeToString(message))
+	logger.Debug("response: " + hex.EncodeToString(response))
 
 	if err != nil {
 		logger.Error("error while getting version: %q", err)
@@ -290,9 +290,9 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context []byte, transaction 
 
 		response, err := ledger.device.Exchange(message)
 
-		logger.Debug("Sign requested: \n" +
-					"message: ", hex.EncodeToString(message), "\n",
-					"response: ", hex.EncodeToString(response), "\n")
+		logger.Debug("Sign requested:")
+		logger.Debug("message: "  + hex.EncodeToString(message))
+		logger.Debug("response: " + hex.EncodeToString(response))
 
 		if err != nil {
 			// FIXME: CBOR will be used instead
@@ -334,9 +334,9 @@ func (ledger *LedgerOasis) retrieveAddressPubKeyEd25519(bip44Path []uint32, requ
 
 	response, err := ledger.device.Exchange(message)
 
-	logger.Debug("PubKey requested: \n" +
-		"message: ", hex.EncodeToString(message), "\n",
-		"response: ", hex.EncodeToString(response), "\n")
+	logger.Debug("PubKey requested:")
+	logger.Debug("message: "  + hex.EncodeToString(message))
+	logger.Debug("response: " + hex.EncodeToString(response))
 
 	if err != nil {
 		return nil, "", err
