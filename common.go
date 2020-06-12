@@ -35,7 +35,7 @@ const (
 	// ListingPathIndex is the address index used to list and connect to Ledger devices by address.
 	ListingPathIndex uint32 = 0
 
-	LogModuleName = "remote-signer"
+	LogModuleName = "ledger-signer"
 )
 
 var (
