@@ -114,7 +114,7 @@ func prepareChunks(bip44PathBytes []byte, context []byte, transaction []byte) ([
 
 	for packetIndex < packetCount {
 		var start = (packetIndex - 1) * userMessageChunkSize
-		var end =  (packetIndex * userMessageChunkSize) - 1
+		var end = packetIndex * userMessageChunkSize
 
 		if end >= len(body) {
 			chunks[packetIndex] = body[start:]
