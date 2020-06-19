@@ -181,6 +181,7 @@ github.com/golang/protobuf v1.4.0-rc.1/go.mod h1:ceaxUfeHdC40wWswd/P6IGgMaK3YpKi
 github.com/golang/protobuf v1.4.0-rc.1.0.20200221234624-67d41d38c208/go.mod h1:xKAWHe0F5eneWXFV3EuXVDTCmh+JuBKY0li0aMyXATA=
 github.com/golang/protobuf v1.4.0-rc.2/go.mod h1:LlEzMj4AhA7rCAGe4KMBDvJI+AwstrUpVNzEA03Pprs=
 github.com/golang/protobuf v1.4.0-rc.4.0.20200313231945-b860323f09d0/go.mod h1:WU3c8KckQ9AFe+yFwt9sWVRKCVIyN9cPHBJSNnbL67w=
+github.com/golang/protobuf v1.4.0 h1:oOuy+ugB+P/kBdUnG5QaMXSIyJ1q38wWSojYCb3z5VQ=
 github.com/golang/protobuf v1.4.0/go.mod h1:jodUvKwWbYaEsadDk5Fwe5c77LiNKVO9IDvqG2KuDX0=
 github.com/golang/protobuf v1.4.2 h1:+Z5KGCizgyZCbGh1KZqA0fcLLkwbsjIzS4aV2v7wJX0=
 github.com/golang/protobuf v1.4.2/go.mod h1:oDoupMAO8OvCJWAcko0GGGIgR6R6ocIYbsSw735rRwI=
@@ -523,6 +524,8 @@ github.com/oasislabs/oasis-core/go v0.0.0-20200529125232-b37f24d02fc0/go.mod h1:
 github.com/oasisprotocol/deoxysii v0.0.0-20200527154044-851aec403956/go.mod h1:cE5EgXTIhq5oAVdZ7LZd1FjTRLALPEzv93CWzBtDkyI=
 github.com/oasisprotocol/ed25519 v0.0.0-20200528083105-55566edd6df0 h1:qmiMZ6ZhkeQZkV/Huajj+QBAu1jX0HTGsOwi+eXTGY8=
 github.com/oasisprotocol/ed25519 v0.0.0-20200528083105-55566edd6df0/go.mod h1:IZbb50w3AB72BVobEF6qG93NNSrTw/V2QlboxqSu3Xw=
+github.com/oasisprotocol/oasis-core/go v0.0.0-20200619144606-adbf2226e4d3 h1:UwvETzXyR3MDkSqU3PCPTym+qpsg6lcyTAHAfE+SpNg=
+github.com/oasisprotocol/oasis-core/go v0.0.0-20200619144606-adbf2226e4d3/go.mod h1:3BEJ2mHuUyCyWeDEu9ws457g4zR4kJm81ogB0z6zVuA=
 github.com/oklog/oklog v0.3.2/go.mod h1:FCV+B7mhrz4o+ueLpx+KqkyXRGMWOYEvfiXtdGtbWGs=
 github.com/oklog/run v1.0.0/go.mod h1:dlhp/R75TPv97u0XWUtDeV/lRKWPKSdTuV0TZvrmrQA=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
@@ -684,6 +687,7 @@ github.com/zondax/ledger-go v0.11.1-0.20200524195103-7b1a20be061b/go.mod h1:NI6J
 github.com/zondax/ledger-oasis-go v0.3.0/go.mod h1:czCs1jEu/4KYz3mYgALCedjgKxaFygAQxJ1di+3hHoI=
 gitlab.com/yawning/bsaes.git v0.0.0-20190805113838-0a714cd429ec/go.mod h1:BZ1RAoRPbCxum9Grlv5aeksu2H8BiKehBYooU2LFiOQ=
 gitlab.com/yawning/dynlib.git v0.0.0-20190911075527-1e6ab3739fd8/go.mod h1:U41r+zgpFRTlkSzMhBjUqbupvVBafgokFFkKn0j+874=
+gitlab.com/yawning/dynlib.git v0.0.0-20200603163025-35fe007b0761/go.mod h1:U41r+zgpFRTlkSzMhBjUqbupvVBafgokFFkKn0j+874=
 gitlab.com/yawning/slice.git v0.0.0-20190714152416-bc4ae2510529/go.mod h1:sgaKGjNNjAAVrZvQQhE3oYIbnFZVaCBE2T7PmbpKJ4U=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
@@ -904,6 +908,7 @@ google.golang.org/protobuf v0.0.0-20200109180630-ec00e32a8dfd/go.mod h1:DFci5gLY
 google.golang.org/protobuf v0.0.0-20200221191635-4d8936d0db64/go.mod h1:kwYJMbMJ01Woi6D6+Kah6886xMZcty6N08ah7+eCXa0=
 google.golang.org/protobuf v0.0.0-20200228230310-ab0ca4ff8a60/go.mod h1:cfTl7dwQJ+fmap5saPgwCLgHXTUD7jkjRqWcaiX5VyM=
 google.golang.org/protobuf v1.20.1-0.20200309200217-e05f789c0967/go.mod h1:A+miEFZTKqfCUM6K7xSMQL9OKL/b6hQv+e19PK+JZNE=
+google.golang.org/protobuf v1.21.0 h1:qdOKuR/EIArgaWNjetjgTzgVTAZ+S/WXVrq9HW9zimw=
 google.golang.org/protobuf v1.21.0/go.mod h1:47Nbq4nVaFHyn7ilMalzfO3qCViNmqZ2kzikPIcrTAo=
 google.golang.org/protobuf v1.23.0 h1:4MY060fB1DLGMB/7MBTLnwQUY6+F09GEiz6SsrNqyzM=
 google.golang.org/protobuf v1.23.0/go.mod h1:EGpADcykh3NcUnDUJcl1+ZksZNG86OlYog2l/sGQquU=
