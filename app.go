@@ -19,8 +19,8 @@ package ledger_oasis_go
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/oasislabs/oasis-core/go/common/crypto/signature"
 	"github.com/oasislabs/oasis-core/go/common/logging"
+	"github.com/oasisprotocol/oasis-core/go/common/crypto/signature"
 	"github.com/zondax/ledger-go"
 )
 
@@ -44,6 +44,12 @@ type LedgerAppMode int
 const (
 	ValidatorMode LedgerAppMode = 1 + iota
 	ConsumerMode
+	UnknownMode
+)
+
+const (
+	// PathPurposeConsensus is set to 474, matching ledger's Validator app
+	PathPurposeConsensus uint32 = 474
 )
 
 
@@ -70,24 +76,9 @@ func GetModeForRole(role signature.SignerRole) LedgerAppMode {
 	}
 }
 
-//GetDerivationPath return the derivation path for mode
-func GetDerivationPath(mode LedgerAppMode) []uint32 {
-	switch mode {
-	case ValidatorMode:
-		return ListingDerivationPathValidator
-	case ConsumerMode:
-		return ListingDerivationPath
-	}
-
-	return []uint32{}
-}
-
-
 // Displays existing Ledger Oasis apps by address
-func ListOasisDevices(mode LedgerAppMode) {
+func ListOasisDevices(path []uint32) {
 	ledgerAdmin := ledger_go.NewLedgerAdmin()
-
-	path := GetDerivationPath(mode)
 
 	for i := 0; i < ledgerAdmin.CountDevices(); i += 1 {
 		ledgerDevice, err := ledgerAdmin.Connect(i)
@@ -115,9 +106,24 @@ func ListOasisDevices(mode LedgerAppMode) {
 	}
 }
 
+func GetModeForPath(path []uint32) LedgerAppMode {
+
+	mode := UnknownMode
+
+	if path[0] == PathPurposeConsensus {
+		mode = ValidatorMode
+	} else {
+		mode = ConsumerMode
+	}
+
+	return mode
+}
+
 // ConnectLedgerOasisApp connects to Oasis app based on address
-func ConnectLedgerOasisApp(seekingAddress string, mode LedgerAppMode) (*LedgerOasis, error) {
+func ConnectLedgerOasisApp(seekingAddress string, path []uint32) (*LedgerOasis, error) {
 	ledgerAdmin := ledger_go.NewLedgerAdmin()
+
+	mode := GetModeForPath(path)
 
 	for i := 0; i < ledgerAdmin.CountDevices(); i += 1 {
 		ledgerDevice, err := ledgerAdmin.Connect(i)
@@ -126,8 +132,6 @@ func ConnectLedgerOasisApp(seekingAddress string, mode LedgerAppMode) (*LedgerOa
 		}
 
 		app := LedgerOasis{ledgerDevice, VersionInfo{uint8(mode), 0, 0, 0}}
-
-		path := GetDerivationPath(mode)
 
 		_, address, err := app.GetAddressPubKeyEd25519(path)
 		if err != nil {
