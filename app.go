@@ -19,8 +19,8 @@ package ledger_oasis_go
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/oasislabs/oasis-core/go/common/logging"
 	"github.com/oasisprotocol/oasis-core/go/common/crypto/signature"
+	"github.com/oasisprotocol/oasis-core/go/common/logging"
 	"github.com/zondax/ledger-go"
 )
 
@@ -306,6 +306,10 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context []byte, transaction 
 				return nil, fmt.Errorf(errorMsg)
 			}
 			if err.Error() == "[APDU_CODE_DATA_INVALID] Referenced data reversibly blocked (invalidated)" {
+				errorMsg := string(response)
+				return nil, fmt.Errorf(errorMsg)
+			}
+			if err.Error() == "[APDU_CODE_COMMAND_NOT_ALLOWED] Sign request rejected" {
 				errorMsg := string(response)
 				return nil, fmt.Errorf(errorMsg)
 			}
