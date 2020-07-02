@@ -269,29 +269,3 @@ func Test_Sign_Fails(t *testing.T) {
 	assert.Equal(t, errMessage, "Unexpected CBOR EOF")
 
 }
-
-func Test_Sign_Minimal(t *testing.T) {
-	app, err := FindLedgerOasisApp()
-	if err != nil {
-		t.Fatalf(err.Error())
-	}
-	defer app.Close()
-
-	app.api.Logging = true
-
-	path := []uint32{44, 474, 0, 0, 5}
-
-	message := getDummyTx()
-
-	println("--------------------------------------------------------")
-	println(coinContext)
-	println("--------------------------------------------------------")
-	println(hex.EncodeToString([]byte(coinContext)))
-	println(hex.EncodeToString(message))
-	println("--------------------------------------------------------")
-
-	_, err = app.SignEd25519(path, []byte(coinContext), message)
-	if err != nil {
-		t.Fatalf("[Sign] Error: %s\n", err.Error())
-	}
-}

@@ -135,7 +135,7 @@ func Test_ChunkGeneration2(t *testing.T) {
 	println(hex.EncodeToString(context))
 	println(hex.EncodeToString(message))
 
-	chunks, err := prepareChunks(pathBytes, context, message, 200)
+	chunks, err := prepareChunks(pathBytes, context, message, 4)
 
 	for index, c := range chunks {
 		println(index, hex.EncodeToString(c))

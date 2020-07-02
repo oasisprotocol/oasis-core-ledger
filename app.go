@@ -48,8 +48,8 @@ const (
 )
 
 const (
-	// PathPurposeConsensus is set to 474, matching ledger's Validator app
-	PathPurposeConsensus uint32 = 474
+	// PathPurposeConsensus is set to 43, matching ledger's Validator app
+	PathPurposeConsensus uint32 = 43
 )
 
 
