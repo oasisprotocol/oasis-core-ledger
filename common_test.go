@@ -17,6 +17,7 @@
 package ledger_oasis_go
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"strings"
@@ -35,7 +36,7 @@ func Test_PathGeneration0(t *testing.T) {
 	pathBytes, err := GetBip44bytes(bip44Path, 0)
 
 	if err != nil {
-		t.Fatalf( "Detected error, err: %s\n", err.Error())
+		t.Fatalf("Detected error, err: %s\n", err.Error())
 	}
 
 	fmt.Printf("Path: %x\n", pathBytes)
@@ -111,13 +112,40 @@ func Test_ChunkGeneration(t *testing.T) {
 
 	message := getDummyTx()
 
-	chunks, err := prepareChunks(pathBytes, []byte(coinContext), message)
+	chunks, err := prepareChunks(pathBytes, []byte(coinContext), message, userMessageChunkSize)
 
 	assert.Equal(
 		t,
 		chunks[0],
 		pathBytes,
 		"First chunk should be pathBytes\n")
+}
+
+func Test_ChunkGeneration2(t *testing.T) {
+	bip44Path := []uint32{44, 123, 0, 0, 0}
+
+	pathBytes, err := GetBip44bytes(bip44Path, 0)
+	if err != nil {
+		t.Fatalf("Detected error, err: %s\n", err.Error())
+	}
+
+	context := []byte{0xa1, 0xa2, 0xa3, 0xa4}
+	message := []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 0}
+
+	println(hex.EncodeToString(context))
+	println(hex.EncodeToString(message))
+
+	chunks, err := prepareChunks(pathBytes, context, message, 4)
+
+	for index, c := range chunks {
+		println(index, hex.EncodeToString(c))
+	}
+
+	assert.Equal(
+		t,
+		5,
+		len(chunks),
+		"incorrect number of chunks\n")
 }
 
 func Test_ChunkGeneration_invalidContextLength(t *testing.T) {
@@ -132,7 +160,7 @@ func Test_ChunkGeneration_invalidContextLength(t *testing.T) {
 
 	var coinContext = strings.Repeat("A", 256)
 
-	_, errChunk := prepareChunks(pathBytes, []byte(coinContext), message)
+	_, errChunk := prepareChunks(pathBytes, []byte(coinContext), message, userMessageChunkSize)
 
 	fmt.Printf("Error: %s\n", errChunk)
 
@@ -151,7 +179,7 @@ func Test_ChunkGeneration_contextLengthIsZero(t *testing.T) {
 
 	var coinContext = ""
 
-	chunks, _ := prepareChunks(pathBytes, []byte(coinContext), message)
+	chunks, _ := prepareChunks(pathBytes, []byte(coinContext), message, userMessageChunkSize)
 
 	assert.Equal(
 		t,
