@@ -27,7 +27,7 @@ import (
 	"testing"
 )
 
-var coinContext = "oasis-core/consensus: tx for chain test-chain-id"
+var coinContext = "oasis-core/consensus: tx for chain 7b02d647e8997bacebce96723f6904029ec78b67c261c4bdddb5e47de1ab31fa"
 
 // Ledger Test Mnemonic: equip will roof matter pink blind book anxiety banner elbow sun young
 
@@ -195,9 +195,9 @@ func Test_UserPK_HDPaths(t *testing.T) {
 }
 
 func getDummyTx() []byte {
-	base64tx := "pGNmZWWiY2dhcwBmYW1vdW50QGRib2R5omd4ZmVyX3RvWCBkNhaFWEyIEubmS3EVtRLTanD3U+vDV5fke4Obyq" +
-		"83CWt4ZmVyX3Rva2Vuc0Blbm9uY2UAZm1ldGhvZHBzdGFraW5nLlRyYW5zZmVy"
+	base64tx := "pGNmZWWiY2dhcxkD6GZhbW91bnRCB9BkYm9keaJneGZlcl90b1UA4ywoibwEEhHt7fqvlNL9hmmLsH9reGZlcl90b2tlbnNFJ5TKJABlbm9uY2UHZm1ldGhvZHBzdGFraW5nLlRyYW5zZmVy"
 	tx, _ := base64.StdEncoding.DecodeString(base64tx)
+	println(hex.EncodeToString(tx))
 	return tx
 }
 
@@ -211,6 +211,10 @@ func Test_Sign(t *testing.T) {
 	path := []uint32{44, 474, 0, 0, 5}
 
 	message := getDummyTx()
+
+	println(coinContext)
+	println(hex.EncodeToString(message))
+
 	signature, err := app.SignEd25519(path, []byte(coinContext), message)
 	if err != nil {
 		t.Fatalf("[Sign] Error: %s\n", err.Error())
@@ -264,4 +268,30 @@ func Test_Sign_Fails(t *testing.T) {
 	errMessage = err.Error()
 	assert.Equal(t, errMessage, "Unexpected CBOR EOF")
 
+}
+
+func Test_Sign_Minimal(t *testing.T) {
+	app, err := FindLedgerOasisApp()
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	defer app.Close()
+
+	app.api.Logging = true
+
+	path := []uint32{44, 474, 0, 0, 5}
+
+	message := getDummyTx()
+
+	println("--------------------------------------------------------")
+	println(coinContext)
+	println("--------------------------------------------------------")
+	println(hex.EncodeToString([]byte(coinContext)))
+	println(hex.EncodeToString(message))
+	println("--------------------------------------------------------")
+
+	_, err = app.SignEd25519(path, []byte(coinContext), message)
+	if err != nil {
+		t.Fatalf("[Sign] Error: %s\n", err.Error())
+	}
 }

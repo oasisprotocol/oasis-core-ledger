@@ -19,7 +19,6 @@ package ledger_oasis_go
 import (
 	"encoding/binary"
 	"fmt"
-	"math"
 )
 
 const (
@@ -85,7 +84,7 @@ func GetBip44bytes(bip44Path []uint32, hardenCount int) ([]byte, error) {
 		return nil, fmt.Errorf("path should contain 5 elements")
 	}
 	for index, element := range bip44Path {
-		pos := index*4
+		pos := index * 4
 		value := element
 		if index < hardenCount {
 			value = 0x80000000 | element
@@ -95,14 +94,21 @@ func GetBip44bytes(bip44Path []uint32, hardenCount int) ([]byte, error) {
 	return message, nil
 }
 
-func prepareChunks(bip44PathBytes []byte, context []byte, transaction []byte) ([][]byte, error) {
+func prepareChunks(bip44PathBytes []byte, context []byte, transaction []byte, chunkSize int) ([][]byte, error) {
 	if len(context) > 255 {
 		return nil, fmt.Errorf("maximum supported context size is 255 bytes")
 	}
 
 	var packetIndex = 0
-	// first chunk + number of chunk needed for context + transaction
-	var packetCount = 1 + int(math.Ceil(float64(len(transaction) + len(context))/float64(userMessageChunkSize)))
+
+	var contextSizeByte = []byte{byte(len(context))}
+	var body = append(contextSizeByte, context...)
+	body = append(body, transaction...)
+
+	var packetCount = 1 + len(body)/chunkSize
+	if len(body)%chunkSize > 0 {
+		packetCount += 1
+	}
 
 	chunks := make([][]byte, packetCount)
 
@@ -110,22 +116,17 @@ func prepareChunks(bip44PathBytes []byte, context []byte, transaction []byte) ([
 	chunks[0] = bip44PathBytes
 	packetIndex++
 
-	var contextSizeByte = []byte{byte(len(context))}
-	var body = append(contextSizeByte, context...)
-	body = append(body, transaction...)
-
-	for packetIndex < packetCount {
-		var start = (packetIndex - 1) * userMessageChunkSize
-		var end = packetIndex * userMessageChunkSize
-
-		if end >= len(body) {
-			chunks[packetIndex] = body[start:]
-		} else {
-			chunks[packetIndex] = body[start:end]
+	chunkIndex := 0
+	for chunkIndex < packetCount-1 {
+		var start = chunkIndex * chunkSize
+		var end = (chunkIndex + 1) * chunkSize
+		if end > len(body) {
+			end = len(body)
 		}
-		packetIndex++
-	}
 
+		chunks[1+chunkIndex] = body[start:end]
+		chunkIndex++
+	}
 
 	return chunks, nil
 }

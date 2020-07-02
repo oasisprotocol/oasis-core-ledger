@@ -264,7 +264,7 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context []byte, transaction 
 		return nil, err
 	}
 
-	chunks, err := prepareChunks(pathBytes, context, transaction)
+	chunks, err := prepareChunks(pathBytes, context, transaction, userMessageChunkSize)
 	if err != nil {
 		return nil, err
 	}
