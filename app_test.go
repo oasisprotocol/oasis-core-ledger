@@ -24,9 +24,10 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 // Ledger Test Mnemonic: equip will roof matter pink blind book anxiety banner elbow sun young
@@ -260,5 +261,4 @@ func Test_Sign_Fails(t *testing.T) {
 	assert.Error(t, err)
 	errMessage = err.Error()
 	assert.Equal(t, errMessage, "Unexpected CBOR EOF")
-
 }

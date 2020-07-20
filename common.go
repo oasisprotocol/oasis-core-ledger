@@ -49,7 +49,7 @@ func (e VersionRequiredError) Error() string {
 	return fmt.Sprintf("App Version required %s - Version found: %s", e.Required, e.Found)
 }
 
-func NewVersionRequiredError(req VersionInfo, ver VersionInfo) error {
+func NewVersionRequiredError(req, ver VersionInfo) error {
 	return &VersionRequiredError{
 		Found:    ver,
 		Required: req,
@@ -57,7 +57,7 @@ func NewVersionRequiredError(req VersionInfo, ver VersionInfo) error {
 }
 
 // CheckVersion compares the current version with the required version
-func CheckVersion(ver VersionInfo, req VersionInfo) error {
+func CheckVersion(ver, req VersionInfo) error {
 	if ver.Major != req.Major {
 		if ver.Major > req.Major {
 			return nil
@@ -94,18 +94,18 @@ func GetBip44bytes(bip44Path []uint32, hardenCount int) ([]byte, error) {
 	return message, nil
 }
 
-func prepareChunks(bip44PathBytes []byte, context []byte, transaction []byte, chunkSize int) ([][]byte, error) {
+func prepareChunks(bip44PathBytes, context, transaction []byte, chunkSize int) ([][]byte, error) {
 	if len(context) > 255 {
 		return nil, fmt.Errorf("maximum supported context size is 255 bytes")
 	}
 
-	var packetIndex = 0
+	packetIndex := 0
 
-	var contextSizeByte = []byte{byte(len(context))}
-	var body = append(contextSizeByte, context...)
+	contextSizeByte := []byte{byte(len(context))}
+	body := append(contextSizeByte, context...)
 	body = append(body, transaction...)
 
-	var packetCount = 1 + len(body)/chunkSize
+	packetCount := 1 + len(body)/chunkSize
 	if len(body)%chunkSize > 0 {
 		packetCount += 1
 	}
@@ -118,8 +118,8 @@ func prepareChunks(bip44PathBytes []byte, context []byte, transaction []byte, ch
 
 	chunkIndex := 0
 	for chunkIndex < packetCount-1 {
-		var start = chunkIndex * chunkSize
-		var end = (chunkIndex + 1) * chunkSize
+		start := chunkIndex * chunkSize
+		end := (chunkIndex + 1) * chunkSize
 		if end > len(body) {
 			end = len(body)
 		}
