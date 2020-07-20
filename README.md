@@ -1,9 +1,8 @@
 # ledger-oasis-go
 
-[![CircleCI](https://circleci.com/gh/Zondax/ledger-oasis-go.svg?style=shield)](https://circleci.com/gh/ZondaX/ledger-oasis-go)
+[![Build status][github-ci-tests-badge]][github-ci-tests-link]
+
+[github-ci-tests-badge]: https://github.com/oasisprotocol/ledger-oasis-go/workflows/ci-tests/badge.svg
+[github-ci-tests-link]: https://github.com/oasisprotocol/ledger-oasis-go/actions?query=workflow:ci-tests
 
 This project is work in progress. Some aspects are subject to change.
-
-# Get source
-Apart from cloning, be sure you install dep dependency management tool
-https://github.com/golang/dep
