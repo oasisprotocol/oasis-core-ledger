@@ -1,3 +1,5 @@
+// +build ledgerhw
+
 /*******************************************************************************
 *   (c) 2019 ZondaX GmbH
 *
@@ -26,8 +28,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"testing"
 )
-
-var coinContext = "oasis-core/consensus: tx for chain 7b02d647e8997bacebce96723f6904029ec78b67c261c4bdddb5e47de1ab31fa"
 
 // Ledger Test Mnemonic: equip will roof matter pink blind book anxiety banner elbow sun young
 
@@ -192,13 +192,6 @@ func Test_UserPK_HDPaths(t *testing.T) {
 			hex.EncodeToString(pubKey),
 			"Public key 44'/474'/0'/0/%d does not match\n", i)
 	}
-}
-
-func getDummyTx() []byte {
-	base64tx := "pGNmZWWiY2dhcxkD6GZhbW91bnRCB9BkYm9keaJneGZlcl90b1UA4ywoibwEEhHt7fqvlNL9hmmLsH9reGZlcl90b2tlbnNFJ5TKJABlbm9uY2UHZm1ldGhvZHBzdGFraW5nLlRyYW5zZmVy"
-	tx, _ := base64.StdEncoding.DecodeString(base64tx)
-	println(hex.EncodeToString(tx))
-	return tx
 }
 
 func Test_Sign(t *testing.T) {
