@@ -1,4 +1,4 @@
-module github.com/oasisprotocol/ledger-oasis-go
+module github.com/oasisprotocol/oasis-core-ledger
 
 go 1.13
 
