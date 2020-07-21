@@ -39,7 +39,6 @@ func Test_UserGetVersion(t *testing.T) {
 
 	assert.Equal(t, uint8(0x0), version.AppMode, "TESTING MODE ENABLED!!")
 	assert.Equal(t, uint8(0x0), version.Major, "Wrong Major version")
-	assert.Equal(t, uint8(0xd), version.Minor, "Wrong Minor version")
 }
 
 func Test_UserGetPublicKey(t *testing.T) {
@@ -188,6 +187,17 @@ func Test_Sign(t *testing.T) {
 
 	path := []uint32{44, 474, 0, 0, 5}
 
+	// Verify Signature
+	pubKey, err := app.GetPublicKeyEd25519(path)
+	if err != nil {
+		t.Fatalf("Detected error, err: %s\n", err.Error())
+	}
+
+	if err != nil {
+		t.Fatalf("[GetPK] Error: " + err.Error())
+		return
+	}
+
 	message := getDummyTx()
 
 	println(coinContext)
@@ -197,6 +207,32 @@ func Test_Sign(t *testing.T) {
 	if err != nil {
 		t.Fatalf("[Sign] Error: %s\n", err.Error())
 	}
+
+	message = append([]byte(coinContext), message...)
+	hash := sha512.Sum512_256(message)
+
+	verified := ed25519.Verify(pubKey, hash[:], signature)
+	if !verified {
+		t.Fatalf("[VerifySig] Error verifying signature")
+		return
+	}
+}
+
+func getDummyTx_Issue1() []byte {
+	base64tx := "pGNmZWWiY2dhcwBmYW1vdW50QGRib2R5oWlhbWVuZG1lbnSiZXJhdGVzgaJkcmF0ZUMBhqBlc3RhcnQZA+hmYm91bmRzgaNlc3RhcnQZA+hocmF0ZV9tYXhDAYagaHJhdGVfbWluQwGGoGVub25jZQBmbWV0aG9keB9zdGFraW5nLkFtZW5kQ29tbWlzc2lvblNjaGVkdWxl"
+	tx, _ := base64.StdEncoding.DecodeString(base64tx)
+	println(hex.EncodeToString(tx))
+	return tx
+}
+
+func Test_Sign_issue1(t *testing.T) {
+	app, err := FindLedgerOasisApp()
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	defer app.Close()
+
+	path := []uint32{44, 474, 0, 0, 5}
 
 	// Verify Signature
 	pubKey, err := app.GetPublicKeyEd25519(path)
@@ -209,8 +245,18 @@ func Test_Sign(t *testing.T) {
 		return
 	}
 
+	message := getDummyTx_Issue1()
+
+	println(coinContext)
+	println(hex.EncodeToString(message))
+
+	signature, err := app.SignEd25519(path, []byte(coinContext), message)
+	if err != nil {
+		t.Fatalf("[Sign] Error: %s\n", err.Error())
+	}
+
 	message = append([]byte(coinContext), message...)
-	hash := sha512.Sum512(message)
+	hash := sha512.Sum512_256(message)
 
 	verified := ed25519.Verify(pubKey, hash[:], signature)
 	if !verified {
