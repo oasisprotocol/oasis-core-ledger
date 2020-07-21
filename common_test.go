@@ -17,12 +17,23 @@
 package ledger_oasis_go
 
 import (
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
+
+var coinContext = "oasis-core/consensus: tx for chain 7b02d647e8997bacebce96723f6904029ec78b67c261c4bdddb5e47de1ab31fa"
+
+func getDummyTx() []byte {
+	base64tx := "pGNmZWWiY2dhcxkD6GZhbW91bnRCB9BkYm9keaJneGZlcl90b1UA4ywoibwEEhHt7fqvlNL9hmmLsH9reGZlcl90b2tlbnNFJ5TKJABlbm9uY2UHZm1ldGhvZHBzdGFraW5nLlRyYW5zZmVy"
+	tx, _ := base64.StdEncoding.DecodeString(base64tx)
+	println(hex.EncodeToString(tx))
+	return tx
+}
 
 func Test_PrintVersion(t *testing.T) {
 	reqVersion := VersionInfo{0, 1, 2, 3}
@@ -34,7 +45,6 @@ func Test_PathGeneration0(t *testing.T) {
 	bip44Path := []uint32{44, 100, 0, 0, 0}
 
 	pathBytes, err := GetBip44bytes(bip44Path, 0)
-
 	if err != nil {
 		t.Fatalf("Detected error, err: %s\n", err.Error())
 	}
@@ -58,7 +68,6 @@ func Test_PathGeneration2(t *testing.T) {
 	bip44Path := []uint32{44, 123, 0, 0, 0}
 
 	pathBytes, err := GetBip44bytes(bip44Path, 2)
-
 	if err != nil {
 		t.Fatalf("Detected error, err: %s\n", err.Error())
 	}
@@ -82,7 +91,6 @@ func Test_PathGeneration3(t *testing.T) {
 	bip44Path := []uint32{44, 123, 0, 0, 0}
 
 	pathBytes, err := GetBip44bytes(bip44Path, 3)
-
 	if err != nil {
 		t.Fatalf("Detected error, err: %s\n", err.Error())
 	}
@@ -158,7 +166,7 @@ func Test_ChunkGeneration_invalidContextLength(t *testing.T) {
 
 	message := getDummyTx()
 
-	var coinContext = strings.Repeat("A", 256)
+	coinContext := strings.Repeat("A", 256)
 
 	_, errChunk := prepareChunks(pathBytes, []byte(coinContext), message, userMessageChunkSize)
 
@@ -177,7 +185,7 @@ func Test_ChunkGeneration_contextLengthIsZero(t *testing.T) {
 
 	message := getDummyTx()
 
-	var coinContext = ""
+	coinContext := ""
 
 	chunks, _ := prepareChunks(pathBytes, []byte(coinContext), message, userMessageChunkSize)
 

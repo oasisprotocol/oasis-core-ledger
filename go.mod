@@ -1,4 +1,4 @@
-module github.com/zondax/ledger-oasis-go
+module github.com/oasisprotocol/ledger-oasis-go
 
 go 1.13
 

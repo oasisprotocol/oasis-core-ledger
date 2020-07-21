@@ -19,6 +19,7 @@ package ledger_oasis_go
 import (
 	"encoding/hex"
 	"fmt"
+
 	"github.com/oasisprotocol/oasis-core/go/common/crypto/signature"
 	"github.com/oasisprotocol/oasis-core/go/common/logging"
 	"github.com/zondax/ledger-go"
@@ -52,7 +53,6 @@ const (
 	PathPurposeConsensus uint32 = 43
 )
 
-
 // LedgerOasis represents a connection to the Ledger app
 type LedgerOasis struct {
 	device  ledger_go.LedgerDevice
@@ -61,12 +61,12 @@ type LedgerOasis struct {
 
 var logger = logging.GetLogger(LogModuleName)
 
-//SetLoggerModule sets logging module
-func (ledger *LedgerOasis)SetLoggerModule(module string) {
+// SetLoggerModule sets logging module
+func (ledger *LedgerOasis) SetLoggerModule(module string) {
 	logger = logging.GetLogger(module)
 }
 
-//GetModeForRole returns the app mode compatible with role
+// GetModeForRole returns the app mode compatible with role
 func GetModeForRole(role signature.SignerRole) LedgerAppMode {
 	switch role {
 	case signature.SignerConsensus:
@@ -107,7 +107,6 @@ func ListOasisDevices(path []uint32) {
 }
 
 func GetModeForPath(path []uint32) LedgerAppMode {
-
 	mode := UnknownMode
 
 	if path[0] == PathPurposeConsensus {
@@ -185,7 +184,7 @@ func (ledger *LedgerOasis) CheckVersion(ver VersionInfo) error {
 	return CheckVersion(ver, VersionInfo{0, 0, 3, 0})
 }
 
-//getCLA returns the CLA value for the current app mode
+// getCLA returns the CLA value for the current app mode
 func (ledger *LedgerOasis) getCLA() byte {
 	switch LedgerAppMode(ledger.version.AppMode) {
 	case ValidatorMode:
@@ -201,7 +200,7 @@ func (ledger *LedgerOasis) GetVersion() (*VersionInfo, error) {
 	response, err := ledger.device.Exchange(message)
 
 	logger.Debug("GetVersion requested:")
-	logger.Debug("message: "  + hex.EncodeToString(message))
+	logger.Debug("message: " + hex.EncodeToString(message))
 	logger.Debug("response: " + hex.EncodeToString(response))
 
 	if err != nil {
@@ -225,7 +224,7 @@ func (ledger *LedgerOasis) GetVersion() (*VersionInfo, error) {
 
 // SignEd25519 signs a transaction using Oasis user app
 // this command requires user confirmation in the device
-func (ledger *LedgerOasis) SignEd25519(bip44Path []uint32, context []byte, transaction []byte) ([]byte, error) {
+func (ledger *LedgerOasis) SignEd25519(bip44Path []uint32, context, transaction []byte) ([]byte, error) {
 	return ledger.sign(bip44Path, context, transaction)
 }
 
@@ -257,8 +256,7 @@ func (ledger *LedgerOasis) GetBip44bytes(bip44Path []uint32, hardenCount int) ([
 	return pathBytes, nil
 }
 
-func (ledger *LedgerOasis) sign(bip44Path []uint32, context []byte, transaction []byte) ([]byte, error) {
-
+func (ledger *LedgerOasis) sign(bip44Path []uint32, context, transaction []byte) ([]byte, error) {
 	pathBytes, err := ledger.GetBip44bytes(bip44Path, 5)
 	if err != nil {
 		return nil, err
@@ -295,7 +293,7 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context []byte, transaction 
 		response, err := ledger.device.Exchange(message)
 
 		logger.Debug("Sign requested:")
-		logger.Debug("message: "  + hex.EncodeToString(message))
+		logger.Debug("message: " + hex.EncodeToString(message))
 		logger.Debug("response: " + hex.EncodeToString(response))
 
 		if err != nil {
@@ -343,7 +341,7 @@ func (ledger *LedgerOasis) retrieveAddressPubKeyEd25519(bip44Path []uint32, requ
 	response, err := ledger.device.Exchange(message)
 
 	logger.Debug("PubKey requested:")
-	logger.Debug("message: "  + hex.EncodeToString(message))
+	logger.Debug("message: " + hex.EncodeToString(message))
 	logger.Debug("response: " + hex.EncodeToString(response))
 
 	if err != nil {
