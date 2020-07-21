@@ -27,7 +27,7 @@ jobs:
           go-version: "1.14.x"
       - name: Build code
         run: |
-          go build
+          make build
       - name: Run tests
         run: |
-          go test ./...
+          make test
