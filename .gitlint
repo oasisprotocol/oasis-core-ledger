@@ -1,0 +1,21 @@
+[general]
+verbosity = 2
+ignore-merge-commits=true
+ignore-fixup-commits=false
+ignore-squash-commits=false
+ignore=body-is-missing
+
+[title-max-length]
+line-length=72
+
+[body-max-line-length]
+line-length=80
+
+[body-min-length]
+min-length=20
+
+[title-must-not-contain-word]
+# NOTE: We can't use "fixup!" because gitlint regex matching would fail
+# completely.
+# For more details, see: https://github.com/jorisroovers/gitlint/issues/139
+words=wip,fixup
