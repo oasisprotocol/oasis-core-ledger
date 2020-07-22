@@ -91,15 +91,12 @@ func ListOasisDevices(path []uint32) {
 }
 
 func GetModeForPath(path []uint32) LedgerAppMode {
-	mode := UnknownMode
-
-	if path[0] == PathPurposeConsensus {
-		mode = ValidatorMode
-	} else {
-		mode = ConsumerMode
+	switch path[0] {
+	case PathPurposeConsensus:
+		return ValidatorMode
+	default:
+		return ConsumerMode
 	}
-
-	return mode
 }
 
 // ConnectLedgerOasisApp connects to Oasis app based on address
