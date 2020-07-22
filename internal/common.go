@@ -11,7 +11,7 @@ const (
 	LogModuleName = "ledger-signer"
 )
 
-// VersionInfo contains app version information
+// VersionInfo contains app version information.
 type VersionInfo struct {
 	AppMode uint8
 	Major   uint8
@@ -23,7 +23,7 @@ func (c VersionInfo) String() string {
 	return fmt.Sprintf("%d.%d.%d", c.Major, c.Minor, c.Patch)
 }
 
-// VersionRequiredError the command is not supported by this app
+// VersionRequiredError the command is not supported by this app.
 type VersionRequiredError struct {
 	Found    VersionInfo
 	Required VersionInfo
@@ -40,7 +40,7 @@ func NewVersionRequiredError(req, ver VersionInfo) error {
 	}
 }
 
-// CheckVersion compares the current version with the required version
+// CheckVersion compares the current version with the required version.
 func CheckVersion(ver, req VersionInfo) error {
 	if ver.Major != req.Major {
 		if ver.Major > req.Major {
@@ -83,22 +83,19 @@ func prepareChunks(bip44PathBytes, context, transaction []byte, chunkSize int) (
 		return nil, fmt.Errorf("maximum supported context size is 255 bytes")
 	}
 
-	packetIndex := 0
-
 	contextSizeByte := []byte{byte(len(context))}
 	body := append(contextSizeByte, context...)
 	body = append(body, transaction...)
 
 	packetCount := 1 + len(body)/chunkSize
 	if len(body)%chunkSize > 0 {
-		packetCount += 1
+		packetCount++
 	}
 
 	chunks := make([][]byte, packetCount)
 
 	// First chunk is path
 	chunks[0] = bip44PathBytes
-	packetIndex++
 
 	chunkIndex := 0
 	for chunkIndex < packetCount-1 {

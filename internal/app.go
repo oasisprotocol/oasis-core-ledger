@@ -37,7 +37,7 @@ const (
 	PathPurposeConsensus uint32 = 43
 )
 
-// LedgerOasis represents a connection to the Ledger app
+// LedgerOasis represents a connection to the Ledger app.
 type LedgerOasis struct {
 	device  ledger_go.LedgerDevice
 	version VersionInfo
@@ -45,12 +45,12 @@ type LedgerOasis struct {
 
 var logger = logging.GetLogger(LogModuleName)
 
-// SetLoggerModule sets logging module
+// SetLoggerModule sets logging module.
 func (ledger *LedgerOasis) SetLoggerModule(module string) {
 	logger = logging.GetLogger(module)
 }
 
-// GetModeForRole returns the app mode compatible with role
+// GetModeForRole returns the app mode compatible with role.
 func GetModeForRole(role signature.SignerRole) LedgerAppMode {
 	switch role {
 	case signature.SignerConsensus:
@@ -60,11 +60,11 @@ func GetModeForRole(role signature.SignerRole) LedgerAppMode {
 	}
 }
 
-// Displays existing Ledger Oasis apps by address
+// Displays existing Ledger Oasis apps by address.
 func ListOasisDevices(path []uint32) {
 	ledgerAdmin := ledger_go.NewLedgerAdmin()
 
-	for i := 0; i < ledgerAdmin.CountDevices(); i += 1 {
+	for i := 0; i < ledgerAdmin.CountDevices(); i++ {
 		ledgerDevice, err := ledgerAdmin.Connect(i)
 		if err != nil {
 			continue
@@ -99,13 +99,13 @@ func GetModeForPath(path []uint32) LedgerAppMode {
 	}
 }
 
-// ConnectLedgerOasisApp connects to Oasis app based on address
+// ConnectLedgerOasisApp connects to Oasis app based on address.
 func ConnectLedgerOasisApp(seekingAddress string, path []uint32) (*LedgerOasis, error) {
 	ledgerAdmin := ledger_go.NewLedgerAdmin()
 
 	mode := GetModeForPath(path)
 
-	for i := 0; i < ledgerAdmin.CountDevices(); i += 1 {
+	for i := 0; i < ledgerAdmin.CountDevices(); i++ {
 		ledgerDevice, err := ledgerAdmin.Connect(i)
 		if err != nil {
 			continue
@@ -125,11 +125,11 @@ func ConnectLedgerOasisApp(seekingAddress string, path []uint32) (*LedgerOasis, 
 	return nil, fmt.Errorf("no Oasis app with specified address found")
 }
 
-// FindLedgerOasisApp finds the Oasis app running in a Ledger device
+// FindLedgerOasisApp finds the Oasis app running in a Ledger device.
 func FindLedgerOasisApp() (*LedgerOasis, error) {
 	ledgerAdmin := ledger_go.NewLedgerAdmin()
 
-	for i := 0; i < ledgerAdmin.CountDevices(); i += 1 {
+	for i := 0; i < ledgerAdmin.CountDevices(); i++ {
 		ledgerDevice, err := ledgerAdmin.Connect(i)
 		if err != nil {
 			continue
@@ -155,17 +155,17 @@ func FindLedgerOasisApp() (*LedgerOasis, error) {
 	return nil, fmt.Errorf("no Oasis app found")
 }
 
-// Close closes a connection with the Oasis user app
+// Close closes a connection with the Oasis user app.
 func (ledger *LedgerOasis) Close() error {
 	return ledger.device.Close()
 }
 
-// VersionIsSupported returns true if the App version is supported by this library
+// VersionIsSupported returns true if the App version is supported by this library.
 func (ledger *LedgerOasis) CheckVersion(ver VersionInfo) error {
 	return CheckVersion(ver, VersionInfo{0, 0, 3, 0})
 }
 
-// getCLA returns the CLA value for the current app mode
+// getCLA returns the CLA value for the current app mode.
 func (ledger *LedgerOasis) getCLA() byte {
 	switch LedgerAppMode(ledger.version.AppMode) {
 	case ValidatorMode:
@@ -175,7 +175,7 @@ func (ledger *LedgerOasis) getCLA() byte {
 	}
 }
 
-// GetVersion returns the current version of the Oasis user app
+// GetVersion returns the current version of the Oasis user app.
 func (ledger *LedgerOasis) GetVersion() (*VersionInfo, error) {
 	message := []byte{ledger.getCLA(), INSGetVersion, 0, 0, 0}
 	response, err := ledger.device.Exchange(message)
@@ -204,26 +204,31 @@ func (ledger *LedgerOasis) GetVersion() (*VersionInfo, error) {
 }
 
 // SignEd25519 signs a transaction using Oasis user app
-// this command requires user confirmation in the device
+//
+// NOTE: This command requires user confirmation on the device.
 func (ledger *LedgerOasis) SignEd25519(bip44Path []uint32, context, transaction []byte) ([]byte, error) {
 	return ledger.sign(bip44Path, context, transaction)
 }
 
-// GetPublicKeyEd25519 retrieves the public key for the corresponding bip44 derivation path
-// this command DOES NOT require user confirmation in the device
+// GetPublicKeyEd25519 retrieves the public key for the corresponding BIP44
+// derivation path.
+//
+// NOTE: This command DOES NOT require user confirmation on the device.
 func (ledger *LedgerOasis) GetPublicKeyEd25519(bip44Path []uint32) ([]byte, error) {
 	pubkey, _, err := ledger.retrieveAddressPubKeyEd25519(bip44Path, false)
 	return pubkey, err
 }
 
-// GetAddressPubKeyEd25519 returns the pubkey and address (bech32)
-// this command does not require user confirmation
+// GetAddressPubKeyEd25519 returns the pubkey and address (Bech32-encoded).
+//
+// NOTE: This command DOES NOT require user confirmation on the device.
 func (ledger *LedgerOasis) GetAddressPubKeyEd25519(bip44Path []uint32) (pubkey []byte, addr string, err error) {
 	return ledger.retrieveAddressPubKeyEd25519(bip44Path, false)
 }
 
-// ShowAddressPubKeyEd25519 returns the pubkey (compressed) and address (bech(
-// this command requires user confirmation in the device
+// ShowAddressPubKeyEd25519 returns the pubkey (compressed) and address (Bech32-encoded).
+//
+// NOTE: This command requires user confirmation on the device.
 func (ledger *LedgerOasis) ShowAddressPubKeyEd25519(bip44Path []uint32) (pubkey []byte, addr string, err error) {
 	return ledger.retrieveAddressPubKeyEd25519(bip44Path, true)
 }
@@ -277,7 +282,6 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context, transaction []byte)
 		logger.Debug("response: " + hex.EncodeToString(response))
 
 		if err != nil {
-			// FIXME: CBOR will be used instead
 			if err.Error() == "[APDU_CODE_BAD_KEY_HANDLE] The parameters in the data field are incorrect" {
 				// In this special case, we can extract additional info
 				errorMsg := string(response)
@@ -296,13 +300,15 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context, transaction []byte)
 
 		finalResponse = response
 		chunkIndex++
-
 	}
 	return finalResponse, nil
 }
 
-// retrieveAddressPubKeyEd25519 returns the pubkey and address (bech32)
-func (ledger *LedgerOasis) retrieveAddressPubKeyEd25519(bip44Path []uint32, requireConfirmation bool) (pubkey []byte, addr string, err error) {
+// retrieveAddressPubKeyEd25519 returns the pubkey and address (Bech32-encoded).
+func (ledger *LedgerOasis) retrieveAddressPubKeyEd25519(
+	bip44Path []uint32,
+	requireConfirmation bool,
+) (pubkey []byte, addr string, err error) {
 	pathBytes, err := ledger.GetBip44bytes(bip44Path, 5)
 	if err != nil {
 		return nil, "", err
