@@ -1,6 +1,6 @@
 module github.com/oasisprotocol/oasis-core-ledger
 
-go 1.13
+go 1.14
 
 require (
 	github.com/oasisprotocol/oasis-core/go v0.0.0-20200623153002-9e61aea5195b
