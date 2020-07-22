@@ -1,20 +1,4 @@
-/*******************************************************************************
-*   (c) 2018 ZondaX GmbH
-*
-*  Licensed under the Apache License, Version 2.0 (the "License");
-*  you may not use this file except in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing, software
-*  distributed under the License is distributed on an "AS IS" BASIS,
-*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*  See the License for the specific language governing permissions and
-*  limitations under the License.
-********************************************************************************/
-
-package ledger_oasis_go
+package internal
 
 import (
 	"encoding/base64"
@@ -29,7 +13,7 @@ import (
 var coinContext = "oasis-core/consensus: tx for chain 7b02d647e8997bacebce96723f6904029ec78b67c261c4bdddb5e47de1ab31fa"
 
 func getDummyTx() []byte {
-	base64tx := "pGNmZWWiY2dhcxkD6GZhbW91bnRCB9BkYm9keaJneGZlcl90b1UA4ywoibwEEhHt7fqvlNL9hmmLsH9reGZlcl90b2tlbnNFJ5TKJABlbm9uY2UHZm1ldGhvZHBzdGFraW5nLlRyYW5zZmVy"
+	base64tx := "pGNmZWWiY2dhcxkD6GZhbW91bnRCB9BkYm9keaJneGZlcl90b1UA4ywoibwEEhHt7fqvlNL9hmmLsH9reGZlcl90b2tlbnNFJ5TKJABlbm9uY2UHZm1ldGhvZHBzdGFraW5nLlRyYW5zZmVy" //nolint: lll
 	tx, _ := base64.StdEncoding.DecodeString(base64tx)
 	println(hex.EncodeToString(tx))
 	return tx
@@ -120,7 +104,7 @@ func Test_ChunkGeneration(t *testing.T) {
 
 	message := getDummyTx()
 
-	chunks, err := prepareChunks(pathBytes, []byte(coinContext), message, userMessageChunkSize)
+	chunks, _ := prepareChunks(pathBytes, []byte(coinContext), message, userMessageChunkSize)
 
 	assert.Equal(
 		t,
@@ -143,7 +127,7 @@ func Test_ChunkGeneration2(t *testing.T) {
 	println(hex.EncodeToString(context))
 	println(hex.EncodeToString(message))
 
-	chunks, err := prepareChunks(pathBytes, context, message, 4)
+	chunks, _ := prepareChunks(pathBytes, context, message, 4)
 
 	for index, c := range chunks {
 		println(index, hex.EncodeToString(c))
