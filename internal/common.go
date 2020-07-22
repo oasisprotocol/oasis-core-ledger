@@ -1,4 +1,4 @@
-package ledger_oasis_go
+package internal
 
 import (
 	"encoding/binary"

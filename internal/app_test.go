@@ -1,6 +1,6 @@
 // +build ledgerhw
 
-package ledger_oasis_go
+package internal
 
 import (
 	"crypto/ed25519"

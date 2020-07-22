@@ -1,4 +1,4 @@
-package ledger_oasis_go
+package internal
 
 import (
 	"encoding/hex"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/oasisprotocol/oasis-core/go/common/crypto/signature"
 	"github.com/oasisprotocol/oasis-core/go/common/logging"
-	"github.com/zondax/ledger-go"
+	ledger_go "github.com/zondax/ledger-go"
 )
 
 const (
