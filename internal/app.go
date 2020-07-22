@@ -260,19 +260,18 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context, transaction []byte)
 	for chunkIndex < len(chunks) {
 		payloadLen := byte(len(chunks[chunkIndex]))
 
-		if chunkIndex == 0 {
-			header := []byte{ledger.getCLA(), INSSignEd25519, PayloadChunkInit, 0, payloadLen}
-			message = append(header, chunks[chunkIndex]...)
-		} else {
-
-			payloadDesc := byte(PayloadChunkAdd)
-			if chunkIndex == (len(chunks) - 1) {
-				payloadDesc = byte(PayloadChunkLast)
-			}
-
-			header := []byte{ledger.getCLA(), INSSignEd25519, payloadDesc, 0, payloadLen}
-			message = append(header, chunks[chunkIndex]...)
+		var payloadDesc byte
+		switch chunkIndex {
+		case 0:
+			payloadDesc = PayloadChunkInit
+		case len(chunks) - 1:
+			payloadDesc = PayloadChunkLast
+		default:
+			payloadDesc = PayloadChunkAdd
 		}
+
+		message = []byte{ledger.getCLA(), INSSignEd25519, payloadDesc, 0, payloadLen}
+		message = append(message, chunks[chunkIndex]...)
 
 		response, err := ledger.device.Exchange(message)
 
