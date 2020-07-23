@@ -10,8 +10,26 @@ import (
 )
 
 const (
-	// PathPurposeConsensus is set to 43, matching ledger's Validator app
+	// PathPurposeBIP44 is set to 44 to indicate the use of the BIP-0044's hierarchy:
+	// https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki.
+	PathPurposeBIP44 uint32 = 44
+	// PathPurposeConsensus is set to 43, matching ledger's Validator
+	// app.  This uses the (proposed) BIP-0043 extension that specifies
+	// the purpose of non-Bitcoin uses:
+	// https://github.com/bitcoin/bips/pull/523/files
 	PathPurposeConsensus uint32 = 43
+	// PathSubPurposeConsensus is set to 0 to indicate it is to be used for
+	// consensus-related things.
+	PathSubPurposeConsensus uint32 = 0
+
+	// ListingPathCoinType is set to 474, the index registered to Oasis in the SLIP-0044 registry.
+	ListingPathCoinType uint32 = 474
+	// ListingPathAccount is the account index used to list and connect to Ledger devices by address.
+	ListingPathAccount uint32 = 0
+	// ListingPathChange indicates an external chain.
+	ListingPathChange uint32 = 0
+	// ListingPathIndex is the address index used to list and connect to Ledger devices by address.
+	ListingPathIndex uint32 = 0
 
 	errMsgInvalidParameters = "[APDU_CODE_BAD_KEY_HANDLE] The parameters in the data field are incorrect"
 	errMsgInvalidated       = "[APDU_CODE_DATA_INVALID] Referenced data reversibly blocked (invalidated)"
@@ -32,6 +50,11 @@ const (
 )
 
 var (
+	// ListingDerivationPath is the path used to list and connect to devices by address.
+	ListingDerivationPath = []uint32{
+		PathPurposeBIP44, ListingPathCoinType, ListingPathAccount, ListingPathChange, ListingPathIndex,
+	}
+
 	// ErrSignRequestRejected is the error returned when the user
 	// explicitly rejects a signature request.
 	ErrSignRequestRejected = fmt.Errorf("ledger/oasis: transaction rejected on Ledger device")
