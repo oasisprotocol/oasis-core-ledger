@@ -1,12 +1,12 @@
 include common.mk
 
 # Set all target as the default target.
-all: build-plugin
+all: build build-plugin
 
 # Build.
 build:
 	@$(ECHO) "$(MAGENTA)*** Building Go code...$(OFF)"
-	@$(GO) build -v ./...
+	@$(GO) build -v .
 
 # Build plugin.
 build-plugin:
