@@ -1,14 +1,10 @@
 package internal
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
-)
-
-const (
-	userMessageChunkSize = 250
-
-	LogModuleName = "ledger-signer"
+	"io"
 )
 
 // VersionInfo contains app version information.
@@ -33,36 +29,35 @@ func (e VersionRequiredError) Error() string {
 	return fmt.Sprintf("App Version required %s - Version found: %s", e.Required, e.Found)
 }
 
-func NewVersionRequiredError(req, ver VersionInfo) error {
+func newVersionRequiredError(req, ver VersionInfo) error {
 	return &VersionRequiredError{
 		Found:    ver,
 		Required: req,
 	}
 }
 
-// CheckVersion compares the current version with the required version.
-func CheckVersion(ver, req VersionInfo) error {
+func checkVersion(ver, req VersionInfo) error {
 	if ver.Major != req.Major {
 		if ver.Major > req.Major {
 			return nil
 		}
-		return NewVersionRequiredError(req, ver)
+		return newVersionRequiredError(req, ver)
 	}
 
 	if ver.Minor != req.Minor {
 		if ver.Minor > req.Minor {
 			return nil
 		}
-		return NewVersionRequiredError(req, ver)
+		return newVersionRequiredError(req, ver)
 	}
 
 	if ver.Patch >= req.Patch {
 		return nil
 	}
-	return NewVersionRequiredError(req, ver)
+	return newVersionRequiredError(req, ver)
 }
 
-func GetBip44bytes(bip44Path []uint32, hardenCount int) ([]byte, error) {
+func getBip44bytes(bip44Path []uint32, hardenCount int) ([]byte, error) {
 	message := make([]byte, 20)
 	if len(bip44Path) != 5 {
 		return nil, fmt.Errorf("path should contain 5 elements")
@@ -92,21 +87,26 @@ func prepareChunks(bip44PathBytes, context, transaction []byte, chunkSize int) (
 		packetCount++
 	}
 
-	chunks := make([][]byte, packetCount)
+	chunks := make([][]byte, 0, packetCount)
+	chunks = append(chunks, bip44PathBytes) // First chunk is path.
 
-	// First chunk is path
-	chunks[0] = bip44PathBytes
-
-	chunkIndex := 0
-	for chunkIndex < packetCount-1 {
-		start := chunkIndex * chunkSize
-		end := (chunkIndex + 1) * chunkSize
-		if end > len(body) {
-			end = len(body)
+	r := bytes.NewReader(body)
+readLoop:
+	for {
+		toAppend := make([]byte, chunkSize)
+		n, err := r.Read(toAppend)
+		if n > 0 {
+			// Note: n == 0 only when EOF.
+			chunks = append(chunks, toAppend[:n])
 		}
-
-		chunks[1+chunkIndex] = body[start:end]
-		chunkIndex++
+		switch err {
+		case nil:
+		case io.EOF:
+			break readLoop
+		default:
+			// This can never happen, but handle it.
+			return nil, err
+		}
 	}
 
 	return chunks, nil

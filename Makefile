@@ -1,12 +1,17 @@
 include common.mk
 
 # Set all target as the default target.
-all: build
+all: build build-plugin
 
 # Build.
 build:
 	@$(ECHO) "$(MAGENTA)*** Building Go code...$(OFF)"
-	@$(GO) build -v ./...
+	@$(GO) build -v .
+
+# Build plugin.
+build-plugin:
+	@$(ECHO) "$(MAGENTA)*** Building ledger signer plugin code...$(OFF)"
+	@$(GO) build -trimpath -buildmode=plugin -v -o ./ledger-signer/ledger-signer.so ./ledger-signer
 
 # Format code.
 fmt:
@@ -49,10 +54,11 @@ test: $(test-targets)
 clean:
 	@$(ECHO) "$(CYAN)*** Cleaning up ...$(OFF)"
 	@$(GO) clean -x
+	@rm -f ./ledger-signer/ledger-signer.so
 
 # List of targets that are not actual files.
 .PHONY: \
-	all build \
+	all build build-plugin \
 	fmt \
 	$(lint-targets) lint \
 	$(test-targets) test \

@@ -10,18 +10,58 @@ import (
 )
 
 const (
-	CLAConsumer  = 0x05
-	CLAValidator = 0xF5
+	// PathPurposeBIP44 is set to 44 to indicate the use of the BIP-0044's hierarchy:
+	// https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki.
+	PathPurposeBIP44 uint32 = 44
+	// PathPurposeConsensus is set to 43, matching ledger's Validator
+	// app.  This uses the (proposed) BIP-0043 extension that specifies
+	// the purpose of non-Bitcoin uses:
+	// https://github.com/bitcoin/bips/pull/523/files
+	PathPurposeConsensus uint32 = 43
+	// PathSubPurposeConsensus is set to 0 to indicate it is to be used for
+	// consensus-related things.
+	PathSubPurposeConsensus uint32 = 0
 
-	INSGetVersion     = 0
-	INSGetAddrEd25519 = 1
-	INSSignEd25519    = 2
+	// ListingPathCoinType is set to 474, the index registered to Oasis in the SLIP-0044 registry.
+	ListingPathCoinType uint32 = 474
+	// ListingPathAccount is the account index used to list and connect to Ledger devices by address.
+	ListingPathAccount uint32 = 0
+	// ListingPathChange indicates an external chain.
+	ListingPathChange uint32 = 0
+	// ListingPathIndex is the address index used to list and connect to Ledger devices by address.
+	ListingPathIndex uint32 = 0
+
+	errMsgInvalidParameters = "[APDU_CODE_BAD_KEY_HANDLE] The parameters in the data field are incorrect"
+	errMsgInvalidated       = "[APDU_CODE_DATA_INVALID] Referenced data reversibly blocked (invalidated)"
+	errMsgRejected          = "[APDU_CODE_COMMAND_NOT_ALLOWED] Sign request rejected"
+
+	userMessageChunkSize = 250
+
+	claConsumer  = 0x05
+	claValidator = 0xF5
+
+	insGetVersion     = 0
+	insGetAddrEd25519 = 1
+	insSignEd25519    = 2
+
+	payloadChunkInit = 0
+	payloadChunkAdd  = 1
+	payloadChunkLast = 2
 )
 
-const (
-	PayloadChunkInit = 0
-	PayloadChunkAdd  = 1
-	PayloadChunkLast = 2
+var (
+	// ListingDerivationPath is the path used to list and connect to devices by address.
+	ListingDerivationPath = []uint32{
+		PathPurposeBIP44, ListingPathCoinType, ListingPathAccount, ListingPathChange, ListingPathIndex,
+	}
+
+	// ErrSignRequestRejected is the error returned when the user
+	// explicitly rejects a signature request.
+	ErrSignRequestRejected = fmt.Errorf("ledger/oasis: transaction rejected on Ledger device")
+
+	logger = logging.GetLogger("oasis/ledger")
+
+	minimumRequiredVersion = VersionInfo{0, 0, 3, 0}
 )
 
 type LedgerAppMode int
@@ -32,28 +72,33 @@ const (
 	UnknownMode
 )
 
-const (
-	// PathPurposeConsensus is set to 43, matching ledger's Validator app
-	PathPurposeConsensus uint32 = 43
-)
-
 // LedgerOasis represents a connection to the Ledger app.
 type LedgerOasis struct {
 	device  ledger_go.LedgerDevice
 	version VersionInfo
 }
 
-var logger = logging.GetLogger(LogModuleName)
-
-// SetLoggerModule sets logging module.
-func (ledger *LedgerOasis) SetLoggerModule(module string) {
-	logger = logging.GetLogger(module)
+func newLedgerOasis(device ledger_go.LedgerDevice, mode LedgerAppMode) *LedgerOasis {
+	return &LedgerOasis{
+		device: device,
+		version: VersionInfo{
+			AppMode: uint8(mode),
+		},
+	}
 }
 
-// GetModeForRole returns the app mode compatible with role.
-func GetModeForRole(role signature.SignerRole) LedgerAppMode {
+func getModeForRole(role signature.SignerRole) LedgerAppMode { // nolint: deadcode,unused
 	switch role {
 	case signature.SignerConsensus:
+		return ValidatorMode
+	default:
+		return ConsumerMode
+	}
+}
+
+func getModeForPath(path []uint32) LedgerAppMode {
+	switch path[0] {
+	case PathPurposeConsensus:
 		return ValidatorMode
 	default:
 		return ConsumerMode
@@ -64,6 +109,8 @@ func GetModeForRole(role signature.SignerRole) LedgerAppMode {
 func ListOasisDevices(path []uint32) {
 	ledgerAdmin := ledger_go.NewLedgerAdmin()
 
+	mode := getModeForPath(path)
+
 	for i := 0; i < ledgerAdmin.CountDevices(); i++ {
 		ledgerDevice, err := ledgerAdmin.Connect(i)
 		if err != nil {
@@ -71,7 +118,7 @@ func ListOasisDevices(path []uint32) {
 		}
 		defer ledgerDevice.Close()
 
-		app := LedgerOasis{ledgerDevice, VersionInfo{}}
+		app := newLedgerOasis(ledgerDevice, mode)
 		defer app.Close()
 
 		appVersion, err := app.GetVersion()
@@ -90,20 +137,11 @@ func ListOasisDevices(path []uint32) {
 	}
 }
 
-func GetModeForPath(path []uint32) LedgerAppMode {
-	switch path[0] {
-	case PathPurposeConsensus:
-		return ValidatorMode
-	default:
-		return ConsumerMode
-	}
-}
-
 // ConnectLedgerOasisApp connects to Oasis app based on address.
 func ConnectLedgerOasisApp(seekingAddress string, path []uint32) (*LedgerOasis, error) {
 	ledgerAdmin := ledger_go.NewLedgerAdmin()
 
-	mode := GetModeForPath(path)
+	mode := getModeForPath(path)
 
 	for i := 0; i < ledgerAdmin.CountDevices(); i++ {
 		ledgerDevice, err := ledgerAdmin.Connect(i)
@@ -111,7 +149,7 @@ func ConnectLedgerOasisApp(seekingAddress string, path []uint32) (*LedgerOasis, 
 			continue
 		}
 
-		app := LedgerOasis{ledgerDevice, VersionInfo{uint8(mode), 0, 0, 0}}
+		app := newLedgerOasis(ledgerDevice, mode)
 
 		_, address, err := app.GetAddressPubKeyEd25519(path)
 		if err != nil {
@@ -119,10 +157,10 @@ func ConnectLedgerOasisApp(seekingAddress string, path []uint32) (*LedgerOasis, 
 			continue
 		}
 		if seekingAddress == "" || address == seekingAddress {
-			return &app, nil
+			return app, nil
 		}
 	}
-	return nil, fmt.Errorf("no Oasis app with specified address found")
+	return nil, fmt.Errorf("ledger/oasis: no app with specified address found")
 }
 
 // FindLedgerOasisApp finds the Oasis app running in a Ledger device.
@@ -135,7 +173,7 @@ func FindLedgerOasisApp() (*LedgerOasis, error) {
 			continue
 		}
 
-		app := LedgerOasis{ledgerDevice, VersionInfo{}}
+		app := newLedgerOasis(ledgerDevice, LedgerAppMode(0))
 
 		appVersion, err := app.GetVersion()
 		if err != nil {
@@ -143,16 +181,15 @@ func FindLedgerOasisApp() (*LedgerOasis, error) {
 			continue
 		}
 
-		err = app.CheckVersion(*appVersion)
-		if err != nil {
+		if err = app.CheckVersion(*appVersion); err != nil {
 			app.Close()
 			continue
 		}
 
-		return &app, err
+		return app, nil
 	}
 
-	return nil, fmt.Errorf("no Oasis app found")
+	return nil, fmt.Errorf("ledger/oasis: no app found")
 }
 
 // Close closes a connection with the Oasis user app.
@@ -160,39 +197,31 @@ func (ledger *LedgerOasis) Close() error {
 	return ledger.device.Close()
 }
 
-// VersionIsSupported returns true if the App version is supported by this library.
+// CheckVersion returns nil if the App version is supported by this library.
 func (ledger *LedgerOasis) CheckVersion(ver VersionInfo) error {
-	return CheckVersion(ver, VersionInfo{0, 0, 3, 0})
-}
-
-// getCLA returns the CLA value for the current app mode.
-func (ledger *LedgerOasis) getCLA() byte {
-	switch LedgerAppMode(ledger.version.AppMode) {
-	case ValidatorMode:
-		return CLAValidator
-	default:
-		return CLAConsumer
-	}
+	return checkVersion(ver, minimumRequiredVersion)
 }
 
 // GetVersion returns the current version of the Oasis user app.
 func (ledger *LedgerOasis) GetVersion() (*VersionInfo, error) {
-	message := []byte{ledger.getCLA(), INSGetVersion, 0, 0, 0}
+	message := []byte{ledger.getCLA(), insGetVersion, 0, 0, 0}
 	response, err := ledger.device.Exchange(message)
 
-	logger.Debug("GetVersion requested:")
-	logger.Debug("message: " + hex.EncodeToString(message))
-	logger.Debug("response: " + hex.EncodeToString(response))
+	logger.Debug("GetVersion",
+		"err", err,
+		"message", hex.EncodeToString(message),
+		"response", hex.EncodeToString(response),
+	)
 
 	if err != nil {
-		logger.Error("error while getting version: %q", err)
-		return nil, err
+		return nil, fmt.Errorf("ledger/oasis: failed GetVersion request: %w", err)
 	}
 
 	if len(response) < 4 {
-		return nil, fmt.Errorf("invalid response")
+		return nil, fmt.Errorf("ledger/oasis: truncated GetVersion response")
 	}
 
+	// WTF this tramples over the AppMode used to connect to the device.
 	ledger.version = VersionInfo{
 		AppMode: response[0],
 		Major:   response[1],
@@ -233,74 +262,64 @@ func (ledger *LedgerOasis) ShowAddressPubKeyEd25519(bip44Path []uint32) (pubkey 
 	return ledger.retrieveAddressPubKeyEd25519(bip44Path, true)
 }
 
-func (ledger *LedgerOasis) GetBip44bytes(bip44Path []uint32, hardenCount int) ([]byte, error) {
-	pathBytes, err := GetBip44bytes(bip44Path, hardenCount)
-	if err != nil {
-		return nil, err
+func (ledger *LedgerOasis) getCLA() byte {
+	switch LedgerAppMode(ledger.version.AppMode) {
+	case ValidatorMode:
+		return claValidator
+	default:
+		return claConsumer
 	}
-
-	return pathBytes, nil
 }
 
 func (ledger *LedgerOasis) sign(bip44Path []uint32, context, transaction []byte) ([]byte, error) {
-	pathBytes, err := ledger.GetBip44bytes(bip44Path, 5)
+	pathBytes, err := getBip44bytes(bip44Path, 5)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ledger/oasis: failed to get BIP44 bytes: %w", err)
 	}
 
 	chunks, err := prepareChunks(pathBytes, context, transaction, userMessageChunkSize)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ledger/oasis: failed to prepare chunks: %w", err)
 	}
 
 	var finalResponse []byte
-
-	var message []byte
-
-	var chunkIndex int = 0
-
-	for chunkIndex < len(chunks) {
-		payloadLen := byte(len(chunks[chunkIndex]))
+	for idx, chunk := range chunks {
+		payloadLen := byte(len(chunk))
 
 		var payloadDesc byte
-		switch chunkIndex {
+		switch idx {
 		case 0:
-			payloadDesc = PayloadChunkInit
+			payloadDesc = payloadChunkInit
 		case len(chunks) - 1:
-			payloadDesc = PayloadChunkLast
+			payloadDesc = payloadChunkLast
 		default:
-			payloadDesc = PayloadChunkAdd
+			payloadDesc = payloadChunkAdd
 		}
 
-		message = []byte{ledger.getCLA(), INSSignEd25519, payloadDesc, 0, payloadLen}
-		message = append(message, chunks[chunkIndex]...)
+		message := []byte{ledger.getCLA(), insSignEd25519, payloadDesc, 0, payloadLen}
+		message = append(message, chunk...)
 
 		response, err := ledger.device.Exchange(message)
 
-		logger.Debug("Sign requested:")
-		logger.Debug("message: " + hex.EncodeToString(message))
-		logger.Debug("response: " + hex.EncodeToString(response))
+		logger.Debug("Sign",
+			"err", err,
+			"message", hex.EncodeToString(message),
+			"response", hex.EncodeToString(response),
+		)
 
 		if err != nil {
-			if err.Error() == "[APDU_CODE_BAD_KEY_HANDLE] The parameters in the data field are incorrect" {
-				// In this special case, we can extract additional info
-				errorMsg := string(response)
-				return nil, fmt.Errorf(errorMsg)
+			switch err.Error() {
+			case errMsgInvalidParameters, errMsgInvalidated:
+				return nil, fmt.Errorf("ledger/oasis: failed to sign: %s", string(response))
+			case errMsgRejected:
+				return nil, ErrSignRequestRejected
 			}
-			if err.Error() == "[APDU_CODE_DATA_INVALID] Referenced data reversibly blocked (invalidated)" {
-				errorMsg := string(response)
-				return nil, fmt.Errorf(errorMsg)
-			}
-			if err.Error() == "[APDU_CODE_COMMAND_NOT_ALLOWED] Sign request rejected" {
-				errorMsg := string(response)
-				return nil, fmt.Errorf(errorMsg)
-			}
-			return nil, err
+			return nil, fmt.Errorf("ledger/oasis: failed to sign: %w", err)
 		}
 
 		finalResponse = response
-		chunkIndex++
 	}
+
 	return finalResponse, nil
 }
 
@@ -309,9 +328,9 @@ func (ledger *LedgerOasis) retrieveAddressPubKeyEd25519(
 	bip44Path []uint32,
 	requireConfirmation bool,
 ) (pubkey []byte, addr string, err error) {
-	pathBytes, err := ledger.GetBip44bytes(bip44Path, 5)
+	pathBytes, err := getBip44bytes(bip44Path, 5)
 	if err != nil {
-		return nil, "", err
+		return nil, "", fmt.Errorf("ledger/oasis: failed to get BIP44 bytes: %w", err)
 	}
 
 	p1 := byte(0)
@@ -320,25 +339,27 @@ func (ledger *LedgerOasis) retrieveAddressPubKeyEd25519(
 	}
 
 	// Prepare message
-	header := []byte{ledger.getCLA(), INSGetAddrEd25519, p1, 0, 0}
+	header := []byte{ledger.getCLA(), insGetAddrEd25519, p1, 0, 0}
 	message := append(header, pathBytes...)
 	message[4] = byte(len(message) - len(header)) // update length
 
 	response, err := ledger.device.Exchange(message)
 
-	logger.Debug("PubKey requested:")
-	logger.Debug("message: " + hex.EncodeToString(message))
-	logger.Debug("response: " + hex.EncodeToString(response))
+	logger.Debug("GetAddrEd25519",
+		"err", err,
+		"message", hex.EncodeToString(message),
+		"response", hex.EncodeToString(response),
+	)
 
 	if err != nil {
-		return nil, "", err
+		return nil, "", fmt.Errorf("ledger/oasis: failed to request public key: %w", err)
 	}
 	if len(response) < 39 {
-		return nil, "", fmt.Errorf("invalid response")
+		return nil, "", fmt.Errorf("ledger/oasis: truncated GetAddrEd25519 response")
 	}
 
 	pubkey = response[0:32]
 	addr = string(response[32:])
 
-	return pubkey, addr, err
+	return pubkey, addr, nil
 }
