@@ -5,7 +5,6 @@ package internal
 import (
 	"crypto/ed25519"
 	"crypto/sha512"
-	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"testing"
