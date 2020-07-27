@@ -17,7 +17,7 @@ func getDummyTx() []byte {
 	return tx
 }
 
-func Test_PrintVersion(t *testing.T) {
+func TestPrintVersion(t *testing.T) {
 	require := require.New(t)
 
 	reqVersion := VersionInfo{0, 1, 2, 3}
@@ -104,7 +104,7 @@ func validateChunks(
 	require.Equal(expected, reassembled, "Reconstructed message should match")
 }
 
-func Test_ChunkGeneration(t *testing.T) {
+func TestChunkGeneration(t *testing.T) {
 	require := require.New(t)
 
 	bip44Path := []uint32{44, 123, 0, 0, 0}
@@ -120,7 +120,7 @@ func Test_ChunkGeneration(t *testing.T) {
 	validateChunks(t, require, pathBytes, context, message, chunks, userMessageChunkSize)
 }
 
-func Test_ChunkGeneration2(t *testing.T) {
+func TestChunkGeneration2(t *testing.T) {
 	require := require.New(t)
 
 	bip44Path := []uint32{44, 123, 0, 0, 0}
@@ -141,7 +141,7 @@ func Test_ChunkGeneration2(t *testing.T) {
 	require.Len(chunks, 5, "incorrect number of chunks")
 }
 
-func Test_ChunkGeneration_invalidContextLength(t *testing.T) {
+func TestChunkGenerationInvalidContextLength(t *testing.T) {
 	require := require.New(t)
 
 	bip44Path := []uint32{44, 123, 0, 0, 0}
@@ -157,7 +157,7 @@ func Test_ChunkGeneration_invalidContextLength(t *testing.T) {
 	t.Logf("Error: %v", err)
 }
 
-func Test_ChunkGeneration_contextLengthIsZero(t *testing.T) {
+func TestChunkGenerationContextLengthIsZero(t *testing.T) {
 	require := require.New(t)
 
 	bip44Path := []uint32{44, 123, 0, 0, 0}
