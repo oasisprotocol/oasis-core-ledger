@@ -39,8 +39,6 @@ func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		common.EarlyLogAndExit(err)
 	}
-
-	_ = rootCmd.Execute()
 }
 
 func init() { // nolint: gochecknoinits
