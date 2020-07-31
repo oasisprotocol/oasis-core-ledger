@@ -49,7 +49,12 @@ type pluginConfig struct {
 }
 
 func newPluginConfig(cfgStr string) (*pluginConfig, error) {
-	kvStrs := strings.Split(cfgStr, ";")
+	var kvStrs []string
+
+	// Don't try to split cfgStr if no configuration is specified.
+	if cfgStr != "" {
+		kvStrs = strings.Split(cfgStr, ";")
+	}
 
 	var (
 		cfg                      pluginConfig
