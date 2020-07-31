@@ -1,17 +1,22 @@
 include common.mk
 
+# Check if Go's linkers flags are set in common.mk and add them as extra flags.
+ifneq ($(GOLDFLAGS),)
+	GO_EXTRA_FLAGS += -ldflags $(GOLDFLAGS)
+endif
+
 # Set all target as the default target.
 all: build build-plugin
 
 # Build.
 build:
 	@$(ECHO) "$(MAGENTA)*** Building Go code...$(OFF)"
-	@$(GO) build -trimpath -v .
+	@$(GO) build $(GOFLAGS) .
 
 # Build plugin.
 build-plugin:
 	@$(ECHO) "$(MAGENTA)*** Building ledger signer plugin code...$(OFF)"
-	@$(GO) build -trimpath -v -o ./ledger-signer/ledger-signer ./ledger-signer
+	@$(GO) build $(GOFLAGS) $(GO_EXTRA_FLAGS) -o ./ledger-signer/ledger-signer ./ledger-signer
 
 # Format code.
 fmt:
