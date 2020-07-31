@@ -6,12 +6,12 @@ all: build build-plugin
 # Build.
 build:
 	@$(ECHO) "$(MAGENTA)*** Building Go code...$(OFF)"
-	@$(GO) build -v .
+	@$(GO) build -trimpath -v .
 
 # Build plugin.
 build-plugin:
 	@$(ECHO) "$(MAGENTA)*** Building ledger signer plugin code...$(OFF)"
-	@$(GO) build -trimpath -buildmode=plugin -v -o ./ledger-signer/ledger-signer.so ./ledger-signer
+	@$(GO) build -trimpath -v -o ./ledger-signer/ledger-signer ./ledger-signer
 
 # Format code.
 fmt:
@@ -54,7 +54,7 @@ test: $(test-targets)
 clean:
 	@$(ECHO) "$(CYAN)*** Cleaning up ...$(OFF)"
 	@$(GO) clean -x
-	@rm -f ./ledger-signer/ledger-signer.so
+	@rm -f ./ledger-signer/ledger-signer
 
 # List of targets that are not actual files.
 .PHONY: \
