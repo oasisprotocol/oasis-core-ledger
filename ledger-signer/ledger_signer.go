@@ -2,6 +2,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"strconv"
 	"strings"
@@ -13,6 +14,10 @@ import (
 )
 
 var (
+	// SoftwareVersion represents the Oasis Core's version and should be set
+	// by the linker.
+	SoftwareVersion = "0.0-unset"
+
 	// signerPathCoinType is set to 474, the number associated with Oasis ROSE.
 	signerPathCoinType uint32 = 474
 	// signerPathAccount is the account index used to sign transactions.
@@ -41,6 +46,8 @@ var (
 		signature.SignerEntity:    signerEntityDerivationRootPath,
 		signature.SignerConsensus: signerConsensusDerivationRootPath,
 	}
+
+	versionFlag = flag.Bool("version", false, "Print version and exit")
 )
 
 type pluginConfig struct {
@@ -221,6 +228,12 @@ func (pl *ledgerPlugin) signerForRole(role signature.SignerRole) (*ledgerSigner,
 }
 
 func main() {
+	flag.Parse()
+	if *versionFlag {
+		fmt.Printf("Version: %s\n", SoftwareVersion)
+		return
+	}
+
 	// Signer plugins use raw contexts.
 	signature.UnsafeAllowUnregisteredContexts()
 

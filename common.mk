@@ -29,11 +29,31 @@ OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE ?= origin
 # Name of the branch where to tag the next release.
 RELEASE_BRANCH ?= master
 
+# Try to determine the plugin's version from git.
+LATEST_TAG := $(shell git describe --tags --match 'v*' --abbrev=0 2>/dev/null)
+VERSION := $(subst v,,$(LATEST_TAG))
+IS_TAG := $(shell git describe --tags --match 'v*' --exact-match 2>/dev/null && echo YES || echo NO)
+ifeq ($(and $(LATEST_TAG),$(IS_TAG)),NO)
+        # The current commit is not exactly a tag, append commit and dirty info to
+        # the version.
+        VERSION := $(VERSION)-git$(shell git describe --always --match '' --dirty=+dirty 2>/dev/null)
+endif
+export VERSION
+
 # Go binary to use for all Go commands.
 OASIS_GO ?= go
 
 # Go command prefix to use in all Go commands.
 GO := env -u GOPATH $(OASIS_GO)
+
+# NOTE: The -trimpath flag strips all host dependent filesystem paths from
+# binaries which is required for deterministic builds.
+GOFLAGS ?= -trimpath -v
+
+# Add the plugin version as a linker string value definition.
+ifneq ($(VERSION),)
+	export GOLDFLAGS ?= "-X main.SoftwareVersion=$(VERSION)"
+endif
 
 # Helper that ensures the git workspace is clean.
 define ENSURE_GIT_CLEAN =
