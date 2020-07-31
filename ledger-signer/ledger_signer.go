@@ -3,20 +3,16 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"strconv"
 	"strings"
 
 	"github.com/oasisprotocol/oasis-core/go/common/crypto/signature"
+	pluginSigner "github.com/oasisprotocol/oasis-core/go/common/crypto/signature/signers/plugin"
 
 	"github.com/oasisprotocol/oasis-core-ledger/internal"
 )
 
 var (
-	_ signature.SignerFactoryCtor = newPluginFactory
-	_ signature.SignerFactory     = (*ledgerFactory)(nil)
-	_ signature.Signer            = (*ledgerSigner)(nil)
-
 	// signerPathCoinType is set to 474, the number associated with Oasis ROSE.
 	signerPathCoinType uint32 = 474
 	// signerPathAccount is the account index used to sign transactions.
@@ -47,21 +43,16 @@ var (
 	}
 )
 
-// GetPluginCtor is the plugin's entry point.
-func GetPluginCtor() signature.SignerFactoryCtor {
-	return newPluginFactory
-}
-
-type factoryConfig struct {
+type pluginConfig struct {
 	address string
 	index   uint32
 }
 
-func newFactoryConfig(cfgStr string) (*factoryConfig, error) {
+func newPluginConfig(cfgStr string) (*pluginConfig, error) {
 	kvStrs := strings.Split(cfgStr, ";")
 
 	var (
-		cfg                      factoryConfig
+		cfg                      pluginConfig
 		foundAddress, foundIndex bool
 	)
 	for _, v := range kvStrs {
@@ -103,91 +94,110 @@ func newFactoryConfig(cfgStr string) (*factoryConfig, error) {
 	return &cfg, nil
 }
 
-func newPluginFactory(config interface{}, roles ...signature.SignerRole) (signature.SignerFactory, error) {
-	cfgStr, ok := config.(string)
-	if !ok {
-		return nil, fmt.Errorf("ledger: invalid configuration type")
-	}
-	cfg, err := newFactoryConfig(cfgStr)
-	if err != nil {
-		return nil, fmt.Errorf("ledger: failed to parse configuration: %w", err)
-	}
-
-	return &ledgerFactory{
-		roles:   roles,
-		address: cfg.address,
-		index:   cfg.index,
-	}, nil
-}
-
-type ledgerFactory struct {
-	roles   []signature.SignerRole
+type ledgerPlugin struct {
 	address string
-	index   uint32
-}
-
-func (fac *ledgerFactory) EnsureRole(role signature.SignerRole) error {
-	for _, v := range fac.roles {
-		if v == role {
-			return nil
-		}
-	}
-	return signature.ErrRoleMismatch
-}
-
-func (fac *ledgerFactory) Generate(role signature.SignerRole, _rng io.Reader) (signature.Signer, error) {
-	// Generate has the same functionality as Load, since all keys are
-	// generated on the Ledger device.
-	return fac.Load(role)
-}
-
-func (fac *ledgerFactory) Load(role signature.SignerRole) (signature.Signer, error) {
-	pathPrefix, ok := roleDerivationRootPaths[role]
-	if !ok {
-		return nil, fmt.Errorf("ledger: role %d is not supported when using the Ledger backed signer", role)
-	}
-	path := append(pathPrefix, fac.index)
-	device, err := internal.ConnectLedgerOasisApp(fac.address, path)
-	if err != nil {
-		return nil, fmt.Errorf("ledger: failed to connect to device: %w", err)
-	}
-
-	return &ledgerSigner{device, path, nil}, nil
+	inner   map[signature.SignerRole]*ledgerSigner
 }
 
 type ledgerSigner struct {
+	path []uint32
+
 	device    *internal.LedgerOasis
-	path      []uint32
 	publicKey *signature.PublicKey
 }
 
-func (s *ledgerSigner) Public() signature.PublicKey {
-	if s.publicKey != nil {
-		return *s.publicKey
-	}
-
-	var pubKey signature.PublicKey
-	retrieved, err := s.device.GetPublicKeyEd25519(s.path)
+func (pl *ledgerPlugin) Initialize(config string, roles ...signature.SignerRole) error {
+	cfg, err := newPluginConfig(config)
 	if err != nil {
-		panic(fmt.Errorf("ledger: failed to retrieve public key from device: %w", err))
+		return fmt.Errorf("ledger: failed to parse configuration: %w", err)
 	}
-	if err = pubKey.UnmarshalBinary(retrieved); err != nil {
-		panic(fmt.Errorf("ledger: device returned malfored public key: %w", err))
-	}
-	s.publicKey = &pubKey
+	pl.address = cfg.address
+	pl.inner = make(map[signature.SignerRole]*ledgerSigner)
 
-	return pubKey
+	for _, role := range roles {
+		var signer ledgerSigner
+		pathPrefix, ok := roleDerivationRootPaths[role]
+		if !ok {
+			return fmt.Errorf("ledger: role %d is not supported by signer", role)
+		}
+		signer.path = append(signer.path, pathPrefix...)
+		signer.path = append(signer.path, cfg.index)
+
+		pl.inner[role] = &signer
+	}
+
+	return nil
 }
 
-// ContextSign generates a signature with the private key over the context and
-// message.
-func (s *ledgerSigner) ContextSign(context signature.Context, message []byte) ([]byte, error) {
-	preparedContext, err := signature.PrepareSignerContext(context)
+func (pl *ledgerPlugin) Load(role signature.SignerRole, _mustGenerate bool) error {
+	// Note: `mustGenerate` is ignored as all keys are generated on the
+	// Ledger device.
+
+	signer, device, err := pl.signerForRole(role)
+	if err != nil {
+		return err
+	}
+	if device != nil {
+		// Already connected to device with this key's path.
+		return nil
+	}
+
+	dev, err := internal.ConnectLedgerOasisApp(pl.address, signer.path)
+	if err != nil {
+		return fmt.Errorf("ledger: failed to connect to device: %w", err)
+	}
+	signer.device = dev
+
+	return nil
+}
+
+func (pl *ledgerPlugin) Public(role signature.SignerRole) (signature.PublicKey, error) {
+	var pubKey signature.PublicKey
+
+	signer, device, err := pl.signerForRole(role)
+	if err != nil {
+		return pubKey, err
+	}
+	if signer.publicKey != nil {
+		// Already have retrieved the public key.
+		return *signer.publicKey, nil
+	}
+	if device == nil {
+		return pubKey, fmt.Errorf("ledger: BUG: device for key unavailable: %d", role)
+	}
+
+	// Query the public key from the device.
+	rawPubKey, err := device.GetPublicKeyEd25519(signer.path)
+	if err != nil {
+		return pubKey, fmt.Errorf("ledger: failed to retrieive public key from device: %w", err)
+	}
+	if err = pubKey.UnmarshalBinary(rawPubKey); err != nil {
+		return pubKey, fmt.Errorf("ledger: device returned malformed public key: %w", err)
+	}
+	signer.publicKey = &pubKey
+
+	return pubKey, nil
+}
+
+func (pl *ledgerPlugin) ContextSign(
+	role signature.SignerRole,
+	rawContext signature.Context,
+	message []byte,
+) ([]byte, error) {
+	signer, device, err := pl.signerForRole(role)
+	if err != nil {
+		return nil, err
+	}
+	if device == nil {
+		return nil, fmt.Errorf("ledger: BUG: device for key unavailable: %d", role)
+	}
+
+	preparedContext, err := signature.PrepareSignerContext(rawContext)
 	if err != nil {
 		return nil, fmt.Errorf("ledger: failed to prepare signing context: %w", err)
 	}
 
-	signature, err := s.device.SignEd25519(s.path, preparedContext, message)
+	signature, err := device.SignEd25519(signer.path, preparedContext, message)
 	if err != nil {
 		return nil, fmt.Errorf("ledger: failed to sign message: %w", err)
 	}
@@ -195,12 +205,20 @@ func (s *ledgerSigner) ContextSign(context signature.Context, message []byte) ([
 	return signature, nil
 }
 
-// String returns the address of the account on the Ledger device.
-func (s *ledgerSigner) String() string {
-	return fmt.Sprintf("[ledger signer: %s]", s.Public())
+func (pl *ledgerPlugin) signerForRole(role signature.SignerRole) (*ledgerSigner, *internal.LedgerOasis, error) {
+	signer := pl.inner[role]
+	if signer == nil {
+		// Plugin was not initialized with this role.
+		return nil, nil, signature.ErrRoleMismatch
+	}
+
+	return signer, signer.device, nil
 }
 
-// Reset tears down the Signer.
-func (s *ledgerSigner) Reset() {
-	s.device.Close()
+func main() {
+	// Signer plugins use raw contexts.
+	signature.UnsafeAllowUnregisteredContexts()
+
+	var impl ledgerPlugin
+	pluginSigner.Serve("ledger", &impl)
 }
