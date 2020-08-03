@@ -114,6 +114,11 @@ func ListOasisDevices(path []uint32) {
 	for i := 0; i < ledgerAdmin.CountDevices(); i++ {
 		ledgerDevice, err := ledgerAdmin.Connect(i)
 		if err != nil {
+			logger.Error("ListOasisDevices: couldn't connect to device",
+				"err", err,
+				"mode", mode,
+				"device_index", i,
+			)
 			continue
 		}
 		defer ledgerDevice.Close()
@@ -123,11 +128,21 @@ func ListOasisDevices(path []uint32) {
 
 		appVersion, err := app.GetVersion()
 		if err != nil {
+			logger.Error("ListOasisDevices: couldn't obtain version",
+				"err", err,
+				"mode", mode,
+				"device_index", i,
+			)
 			continue
 		}
 
 		_, address, err := app.GetAddressPubKeyEd25519(path)
 		if err != nil {
+			logger.Error("ListOasisDevices: couldn't obtain address",
+				"err", err,
+				"mode", mode,
+				"device_index", i,
+			)
 			continue
 		}
 
