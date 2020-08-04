@@ -147,7 +147,7 @@ func ListOasisDevices(path []uint32) {
 		}
 
 		fmt.Printf("============ Device found\n")
-		fmt.Printf("Oasis App Version : %x\n", appVersion)
+		fmt.Printf("Oasis App Version : %s\n", appVersion)
 		fmt.Printf("Oasis App Address : %s\n", address)
 	}
 }
