@@ -36,6 +36,9 @@ func Execute() {
 	if err := logLevel.Set(viper.GetString(cfgLogLevel)); err != nil {
 		common.EarlyLogAndExit(fmt.Errorf("root: failed to set log level: %w", err))
 	}
+	if err := logging.Initialize(os.Stdout, logging.FmtLogfmt, logLevel, nil); err != nil {
+		common.EarlyLogAndExit(fmt.Errorf("root: failed to initialize logging: %w", err))
+	}
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
