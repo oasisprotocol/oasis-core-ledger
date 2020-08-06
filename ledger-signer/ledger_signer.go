@@ -2,14 +2,17 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
+
+	"github.com/spf13/cobra"
 
 	"github.com/oasisprotocol/oasis-core/go/common/crypto/signature"
 	pluginSigner "github.com/oasisprotocol/oasis-core/go/common/crypto/signature/signers/plugin"
 
+	"github.com/oasisprotocol/oasis-core-ledger/cmd"
 	"github.com/oasisprotocol/oasis-core-ledger/common"
 	"github.com/oasisprotocol/oasis-core-ledger/internal"
 )
@@ -44,7 +47,20 @@ var (
 		signature.SignerConsensus: signerConsensusDerivationRootPath,
 	}
 
-	versionFlag = flag.Bool("version", false, "Print version and exit")
+	rootCmd = &cobra.Command{
+		Use:   "ledger-signer",
+		Short: "Oasis Core Ledger Signer",
+		Args:  cobra.NoArgs,
+		Run:   func(*cobra.Command, []string) {},
+		Long: `Oasis Core Ledger Signer
+
+This binary is the Oasis Core Ledger Signer plugin.
+It is not meant to be executed directly.
+You need to execute oasis-node from Oasis Core with appropriate flags and it
+will load this plugin automatically.
+`,
+		Version: common.SoftwareVersion,
+	}
 )
 
 type pluginConfig struct {
@@ -225,11 +241,11 @@ func (pl *ledgerPlugin) signerForRole(role signature.SignerRole) (*ledgerSigner,
 }
 
 func main() {
-	flag.Parse()
-	if *versionFlag {
-		fmt.Printf("Software version: %s\n", common.SoftwareVersion)
-		fmt.Printf("Go toolchain version: %s\n", common.ToolchainVersion)
-		return
+	cmd.InitVersions(rootCmd)
+
+	if err := rootCmd.Execute(); err != nil {
+		// NOTE: The error is printed by cobra itself.
+		os.Exit(1)
 	}
 
 	// Signer plugins use raw contexts.
