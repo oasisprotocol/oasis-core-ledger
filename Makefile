@@ -11,7 +11,7 @@ all: build build-plugin
 # Build.
 build:
 	@$(ECHO) "$(MAGENTA)*** Building Go code...$(OFF)"
-	@$(GO) build $(GOFLAGS) .
+	@$(GO) build $(GOFLAGS) $(GO_EXTRA_FLAGS) .
 
 # Build plugin.
 build-plugin:

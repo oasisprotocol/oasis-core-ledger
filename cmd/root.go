@@ -10,7 +10,9 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/oasisprotocol/oasis-core/go/common/logging"
-	"github.com/oasisprotocol/oasis-core/go/oasis-node/cmd/common"
+	cmdCommon "github.com/oasisprotocol/oasis-core/go/oasis-node/cmd/common"
+
+	"github.com/oasisprotocol/oasis-core-ledger/common"
 )
 
 const cfgLogLevel = "log.level"
@@ -18,8 +20,8 @@ const cfgLogLevel = "log.level"
 var (
 	rootCmd = &cobra.Command{
 		Use:     "oasis-core-ledger",
-		Short:   "Oasis Ledger Tool",
-		Version: "0.0.1",
+		Short:   "Oasis Core Ledger Tool",
+		Version: common.SoftwareVersion,
 	}
 
 	rootFlags = flag.NewFlagSet("", flag.ContinueOnError)
@@ -34,10 +36,10 @@ func RootCommand() *cobra.Command {
 func Execute() {
 	var logLevel logging.Level
 	if err := logLevel.Set(viper.GetString(cfgLogLevel)); err != nil {
-		common.EarlyLogAndExit(fmt.Errorf("root: failed to set log level: %w", err))
+		cmdCommon.EarlyLogAndExit(fmt.Errorf("root: failed to set log level: %w", err))
 	}
 	if err := logging.Initialize(os.Stdout, logging.FmtLogfmt, logLevel, nil); err != nil {
-		common.EarlyLogAndExit(fmt.Errorf("root: failed to initialize logging: %w", err))
+		cmdCommon.EarlyLogAndExit(fmt.Errorf("root: failed to initialize logging: %w", err))
 	}
 
 	if err := rootCmd.Execute(); err != nil {
@@ -46,6 +48,8 @@ func Execute() {
 }
 
 func init() { // nolint: gochecknoinits
+	InitVersions(rootCmd)
+
 	logLevel := logging.LevelInfo
 	rootFlags.Var(&logLevel, cfgLogLevel, "log level")
 	_ = viper.BindPFlags(rootFlags)
