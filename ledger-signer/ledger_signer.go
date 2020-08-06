@@ -10,14 +10,11 @@ import (
 	"github.com/oasisprotocol/oasis-core/go/common/crypto/signature"
 	pluginSigner "github.com/oasisprotocol/oasis-core/go/common/crypto/signature/signers/plugin"
 
+	"github.com/oasisprotocol/oasis-core-ledger/common"
 	"github.com/oasisprotocol/oasis-core-ledger/internal"
 )
 
 var (
-	// SoftwareVersion represents the Oasis Core's version and should be set
-	// by the linker.
-	SoftwareVersion = "0.0-unset"
-
 	// signerPathCoinType is set to 474, the number associated with Oasis ROSE.
 	signerPathCoinType uint32 = 474
 	// signerPathAccount is the account index used to sign transactions.
@@ -230,7 +227,7 @@ func (pl *ledgerPlugin) signerForRole(role signature.SignerRole) (*ledgerSigner,
 func main() {
 	flag.Parse()
 	if *versionFlag {
-		fmt.Printf("Version: %s\n", SoftwareVersion)
+		fmt.Printf("Software version: %s\n", common.SoftwareVersion)
 		return
 	}
 
