@@ -52,7 +52,7 @@ GOFLAGS ?= -trimpath -v
 
 # Add the plugin version as a linker string value definition.
 ifneq ($(VERSION),)
-	export GOLDFLAGS ?= "-X main.SoftwareVersion=$(VERSION)"
+	export GOLDFLAGS ?= "-X main.SoftwareVersion=$(VERSION) -X github.com/oasisprotocol/oasis-core-ledger/common.SoftwareVersion=$(VERSION)"
 endif
 
 # Helper that ensures the git workspace is clean.
