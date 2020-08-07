@@ -228,6 +228,7 @@ func main() {
 	flag.Parse()
 	if *versionFlag {
 		fmt.Printf("Software version: %s\n", common.SoftwareVersion)
+		fmt.Printf("Go toolchain version: %s\n", common.ToolchainVersion)
 		return
 	}
 
