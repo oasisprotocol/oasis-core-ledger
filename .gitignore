@@ -1,2 +1,4 @@
 ledger-signer/ledger-signer
 oasis-core-ledger
+# Ignore Punch-created Python cache files.
+/__pycache__/

@@ -62,7 +62,21 @@ test: $(test-targets)
 clean:
 	@$(ECHO) "$(CYAN)*** Cleaning up ...$(OFF)"
 	@$(GO) clean -x
-	@rm -f ./ledger-signer/ledger-signer
+	rm -f ./ledger-signer/ledger-signer
+	rm -rf ./__pycache__/
+
+# Fetch all the latest changes (including tags) from the canonical upstream git
+# repository.
+fetch-git:
+	@$(ECHO) "Fetching the latest changes (including tags) from $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote..."
+	@git fetch $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) --tags
+
+# Private target for bumping project's version using the Punch tool.
+# NOTE: It should not be invoked directly.
+_version-bump: fetch-git
+	@$(ENSURE_GIT_VERSION_EQUALS_PUNCH_VERSION)
+	@$(PUNCH_BUMP_VERSION)
+	@git add $(_PUNCH_VERSION_FILE)
 
 # List of targets that are not actual files.
 .PHONY: \
@@ -70,4 +84,6 @@ clean:
 	fmt \
 	$(lint-targets) lint \
 	$(test-targets) test \
-	clean
+	clean \
+	fetch-git \
+	_version-bump
