@@ -78,6 +78,21 @@ _version-bump: fetch-git
 	@$(PUNCH_BUMP_VERSION)
 	@git add $(_PUNCH_VERSION_FILE)
 
+# Private target for assembling the Change Log.
+# NOTE: It should not be invoked directly.
+_changelog:
+	@$(ECHO) "$(CYAN)*** Generating Change Log for version $(_PUNCH_VERSION)...$(OFF)"
+	@$(BUILD_CHANGELOG)
+	@$(ECHO) "Next, review the staged changes, commit them and make a pull request."
+	@$(WARN_BREAKING_CHANGES)
+
+# Assemble Change Log.
+# NOTE: We need to call Make recursively since _version-bump target updates
+# Punch's version and hence we need Make to re-evaluate the _PUNCH_VERSION
+# variable.
+changelog: _version-bump
+	@$(MAKE) --no-print-directory _changelog
+
 # List of targets that are not actual files.
 .PHONY: \
 	all build build-plugin \
@@ -86,4 +101,5 @@ _version-bump: fetch-git
 	$(test-targets) test \
 	clean \
 	fetch-git \
-	_version-bump
+	_version-bump _changelog \
+	changelog

@@ -22,6 +22,9 @@ endif
 # Output messages to stderr instead stdout.
 ECHO := $(ECHO_CMD) 1>&2
 
+# Boolean indicating whether to assume the 'yes' answer when confirming actions.
+ASSUME_YES ?= 0
+
 # Name of git remote pointing to the canonical upstream git repository, i.e.
 # git@github.com:oasisprotocol/oasis-core-ledger.git.
 OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE ?= origin
@@ -152,4 +155,22 @@ define CHECK_CHANGELOG_FRAGMENTS =
 		gitlint --msg-filename $$fragment -c title-max-length.line-length=78 || exit_status=$$?; \
 	done; \
 	exit $$exit_status
+endef
+
+# Helper that builds the Change Log.
+define BUILD_CHANGELOG =
+	if [[ $(ASSUME_YES) != 1 ]]; then \
+		towncrier build --version $(_PUNCH_VERSION); \
+	else \
+		towncrier build --version $(_PUNCH_VERSION) --yes; \
+	fi
+endef
+
+# Helper that prints a warning when breaking changes are indicated by Change Log
+# fragments.
+define WARN_BREAKING_CHANGES =
+	if [[ -n "$(CHANGELOG_FRAGMENTS_BREAKING)" ]]; then \
+		$(ECHO) "$(RED)Warning: This release contains breaking changes.$(OFF)"; \
+		$(ECHO) "$(RED)         Make sure the version is bumped appropriately.$(OFF)"; \
+	fi
 endef
