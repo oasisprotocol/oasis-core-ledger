@@ -29,14 +29,16 @@ OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE ?= origin
 # Name of the branch where to tag the next release.
 RELEASE_BRANCH ?= master
 
-# Try to determine the plugin's version from git.
-LATEST_TAG := $(shell git describe --tags --match 'v*' --abbrev=0 2>/dev/null)
-VERSION := $(subst v,,$(LATEST_TAG))
-IS_TAG := $(shell git describe --tags --match 'v*' --exact-match 2>/dev/null && echo YES || echo NO)
-ifeq ($(and $(LATEST_TAG),$(IS_TAG)),NO)
-        # The current commit is not exactly a tag, append commit and dirty info to
-        # the version.
-        VERSION := $(VERSION)-git$(shell git describe --always --match '' --dirty=+dirty 2>/dev/null)
+# Determine the project's version from git.
+GIT_VERSION_LATEST_TAG := $(shell git describe --tags --match 'v*' --abbrev=0 2>/dev/null $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) || echo undefined)
+GIT_VERSION_LATEST := $(subst v,,$(GIT_VERSION_LATEST_TAG))
+GIT_VERSION_IS_TAG := $(shell git describe --tags --match 'v*' --exact-match 2>/dev/null $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) && echo YES || echo NO)
+ifeq ($(and $(GIT_VERSION_LATEST_TAG),$(GIT_VERSION_IS_TAG)),YES)
+	VERSION := $(GIT_VERSION_LATEST)
+else
+    # The current commit is not exactly a tag, append commit and dirty info to
+    # the version.
+    VERSION := $(GIT_VERSION_LATEST)-git$(shell git describe --always --match '' --dirty=+dirty 2>/dev/null)
 endif
 export VERSION
 
