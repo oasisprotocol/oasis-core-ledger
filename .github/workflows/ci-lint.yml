@@ -70,6 +70,7 @@ jobs:
         run: |
           make lint-changelog
         # Always run this step so that all linting errors can be seen at once.
+        if: always()
       - name: Lint Go code
         # NOTE: Using the official golangci-lint GitHub Action should give
         # better performance than manually installing golangci-lint and running
