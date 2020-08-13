@@ -25,6 +25,13 @@ ECHO := $(ECHO_CMD) 1>&2
 # Boolean indicating whether to assume the 'yes' answer when confirming actions.
 ASSUME_YES ?= 0
 
+# Helper that asks the user to confirm the action.
+define CONFIRM_ACTION =
+	if [[ $(ASSUME_YES) != 1 ]]; then \
+		$(ECHO) -n "Are you sure? [y/N] " && read ans && [ $${ans:-N} = y ]; \
+	fi
+endef
+
 # Name of git remote pointing to the canonical upstream git repository, i.e.
 # git@github.com:oasisprotocol/oasis-core-ledger.git.
 OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE ?= origin
@@ -172,5 +179,87 @@ define WARN_BREAKING_CHANGES =
 	if [[ -n "$(CHANGELOG_FRAGMENTS_BREAKING)" ]]; then \
 		$(ECHO) "$(RED)Warning: This release contains breaking changes.$(OFF)"; \
 		$(ECHO) "$(RED)         Make sure the version is bumped appropriately.$(OFF)"; \
+	fi
+endef
+
+# Helper that ensures the origin's release branch's HEAD doesn't contain any
+# Change Log fragments.
+define ENSURE_NO_CHANGELOG_FRAGMENTS =
+	if ! CHANGELOG_FILES=`git ls-tree -r --name-only $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) .changelog`; then \
+		$(ECHO) "$(RED)Error: Could not obtain Change Log fragments for $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) branch.$(OFF)"; \
+		exit 1; \
+	fi; \
+	if CHANGELOG_FRAGMENTS=`echo "$$CHANGELOG_FILES" | grep --invert-match --extended-regexp '(README.md|template.md.j2|.markdownlint.yml)'`; then \
+		$(ECHO) "$(RED)Error: Found the following Change Log fragments on $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) branch:"; \
+		$(ECHO) "$${CHANGELOG_FRAGMENTS}$(OFF)"; \
+		exit 1; \
+	fi
+endef
+
+# Helper that ensures the origin's release branch's HEAD contains a Change Log
+# section for the next release.
+define ENSURE_NEXT_RELEASE_IN_CHANGELOG =
+	if ! ( git show $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH):CHANGELOG.md | \
+			grep --quiet '^## $(_PUNCH_VERSION) (.*)' ); then \
+		$(ECHO) "$(RED)Error: Could not locate Change Log section for release $(_PUNCH_VERSION) on $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) branch.$(OFF)"; \
+		exit 1; \
+	fi
+endef
+
+# Tag of the next release.
+_RELEASE_TAG := v$(_PUNCH_VERSION)
+
+# Helper that ensures the new release's tag doesn't already exist on the origin
+# remote.
+define ENSURE_RELEASE_TAG_EXISTS =
+	if ! git ls-remote --exit-code --tags $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) $(_RELEASE_TAG) 1>/dev/null; then \
+		$(ECHO) "$(RED)Error: Tag '$(_RELEASE_TAG)' doesn't exist on $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote.$(OFF)"; \
+		exit 1; \
+	fi
+endef
+
+# Helper that ensures the new release's tag doesn't already exist on the origin
+# remote.
+define ENSURE_RELEASE_TAG_DOES_NOT_EXIST =
+	if git ls-remote --exit-code --tags $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) $(_RELEASE_TAG) 1>/dev/null; then \
+		$(ECHO) "$(RED)Error: Tag '$(_RELEASE_TAG)' already exists on $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote.$(OFF)"; \
+		exit 1; \
+	fi; \
+	if git show-ref --quiet --tags $(_RELEASE_TAG); then \
+		$(ECHO) "$(RED)Error: Tag '$(_RELEASE_TAG)' already exists locally.$(OFF)"; \
+		exit 1; \
+	fi
+endef
+
+# Name of the stable release branch (if the current version is appropriate).
+_STABLE_BRANCH := $(shell python3 -c "exec(open('$(_PUNCH_VERSION_FILE)').read()); print('stable/{}.{}.x'.format(major, minor)) if patch == 0 else print('undefined')")
+
+# Helper that ensures the stable branch name is valid.
+define ENSURE_VALID_STABLE_BRANCH =
+	if [[ "$(_STABLE_BRANCH)" == "undefined" ]]; then \
+		$(ECHO) "$(RED)Error: Cannot create a stable release branch for version $(_PUNCH_VERSION).$(OFF)"; \
+		exit 1; \
+	fi
+endef
+
+# Helper that ensures the new stable branch doesn't already exist on the origin
+# remote.
+define ENSURE_STABLE_BRANCH_DOES_NOT_EXIST =
+	if git ls-remote --exit-code --heads $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) $(_STABLE_BRANCH) 1>/dev/null; then \
+		$(ECHO) "$(RED)Error: Branch '$(_STABLE_BRANCH)' already exists on $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote.$(OFF)"; \
+		exit 1; \
+	fi; \
+	if git show-ref --quiet --heads $(_STABLE_BRANCH); then \
+		$(ECHO) "$(RED)Error: Branch '$(_STABLE_BRANCH)' already exists locally.$(OFF)"; \
+		exit 1; \
+	fi
+endef
+
+# Helper that ensures $(RELEASE_BRANCH) variable contains a valid release branch
+# name.
+define ENSURE_VALID_RELEASE_BRANCH_NAME =
+	if [[ ! $(RELEASE_BRANCH) =~ ^(master|(stable/[0-9]+\.[0-9]+\.x$$)) ]]; then \
+		$(ECHO) "$(RED)Error: Invalid release branch name: '$(RELEASE_BRANCH)'."; \
+		exit 1; \
 	fi
 endef

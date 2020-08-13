@@ -93,6 +93,32 @@ _changelog:
 changelog: _version-bump
 	@$(MAKE) --no-print-directory _changelog
 
+# Tag the next release.
+release-tag: fetch-git
+	@$(ECHO) "Checking if we can tag version $(_PUNCH_VERSION) as the next release..."
+	@$(ENSURE_VALID_RELEASE_BRANCH_NAME)
+	@$(ENSURE_RELEASE_TAG_DOES_NOT_EXIST)
+	@$(ENSURE_NO_CHANGELOG_FRAGMENTS)
+	@$(ENSURE_NEXT_RELEASE_IN_CHANGELOG)
+	@$(ECHO) "All checks have passed. Proceeding with tagging the $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH)'s HEAD with tag '$(_RELEASE_TAG)'."
+	@$(CONFIRM_ACTION)
+	@$(ECHO) "If this appears to be stuck, you might need to touch your security key for GPG sign operation."
+	@git tag --sign --message="Version $(_PUNCH_VERSION)" $(_RELEASE_TAG) $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH)
+	@git push $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) $(_RELEASE_TAG)
+	@$(ECHO) "$(CYAN)*** Tag '$(_RELEASE_TAG)' has been successfully pushed to $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote.$(OFF)"
+
+# Create and push a stable branch for the current release.
+release-stable-branch: fetch-git
+	@$(ECHO) "Checking if we can create a stable release branch for version $(_PUNCH_VERSION)...$(OFF)"
+	@$(ENSURE_VALID_STABLE_BRANCH)
+	@$(ENSURE_RELEASE_TAG_EXISTS)
+	@$(ENSURE_STABLE_BRANCH_DOES_NOT_EXIST)
+	@$(ECHO) "All checks have passed. Proceeding with creating the '$(_STABLE_BRANCH)' branch on $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote."
+	@$(CONFIRM_ACTION)
+	@git branch $(_STABLE_BRANCH) $(_RELEASE_TAG)
+	@git push $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) $(_STABLE_BRANCH)
+	@$(ECHO) "$(CYAN)*** Branch '$(_STABLE_BRANCH)' has been sucessfully pushed to $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote.$(OFF)"
+
 # List of targets that are not actual files.
 .PHONY: \
 	all build build-plugin \
@@ -102,4 +128,5 @@ changelog: _version-bump
 	clean \
 	fetch-git \
 	_version-bump _changelog \
-	changelog
+	changelog \
+	release-tag release-stable-branch

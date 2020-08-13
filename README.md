@@ -67,3 +67,11 @@ The `+dirty` part is optional and is only present if there are uncommitted
 changes in the working directory.
 
 [Semantic Versioning 2.0.0]: https://semver.org/spec/v2.0.0.html
+
+## Contributing
+
+### Release Process
+
+See our [Release Process] document.
+
+[Release Process]: docs/release-process.md
