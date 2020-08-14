@@ -10,12 +10,12 @@ all: build build-plugin
 
 # Build.
 build:
-	@$(ECHO) "$(MAGENTA)*** Building Go code...$(OFF)"
+	@$(ECHO) "$(MAGENTA)*** Building oasis-core-ledger...$(OFF)"
 	@$(GO) build $(GOFLAGS) $(GO_EXTRA_FLAGS) .
 
 # Build plugin.
 build-plugin:
-	@$(ECHO) "$(MAGENTA)*** Building ledger signer plugin code...$(OFF)"
+	@$(ECHO) "$(MAGENTA)*** Building ledger signer plugin ...$(OFF)"
 	@$(GO) build $(GOFLAGS) $(GO_EXTRA_FLAGS) -o ./ledger-signer/ledger-signer ./ledger-signer
 
 # Format code.
