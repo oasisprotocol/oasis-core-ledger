@@ -119,6 +119,12 @@ release-stable-branch: fetch-git
 	@git push $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) $(_STABLE_BRANCH)
 	@$(ECHO) "$(CYAN)*** Branch '$(_STABLE_BRANCH)' has been sucessfully pushed to $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote.$(OFF)"
 
+# Build and publish the next release.
+release-build:
+	@$(ENSURE_GIT_VERSION_EQUALS_PUNCH_VERSION)
+	@$(ECHO) "$(CYAN)*** Creating release for version $(_PUNCH_VERSION)...$(OFF)"
+	@goreleaser $(GORELEASER_ARGS)
+
 # List of targets that are not actual files.
 .PHONY: \
 	all build build-plugin \
@@ -129,4 +135,4 @@ release-stable-branch: fetch-git
 	fetch-git \
 	_version-bump _changelog \
 	changelog \
-	release-tag release-stable-branch
+	release-tag release-stable-branch release-build

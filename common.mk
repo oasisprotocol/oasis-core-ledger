@@ -275,3 +275,34 @@ define ENSURE_VALID_RELEASE_BRANCH_NAME =
 		exit 1; \
 	fi
 endef
+
+# Auxiliary variable that defines a new line for later substitution.
+define newline
+
+
+endef
+
+# GitHub release' text in Markdown format.
+define RELEASE_TEXT =
+For a list of changes in this release, see the [Change Log].
+
+*NOTE: If you are upgrading from an earlier release, please **carefully review**
+the [Change Log] for **Removals and Breaking changes**.*
+
+If you would like to use the Ledger signer plugin with Oasis Core, see the
+[Oasis Ledger Docs].
+
+[Change Log]: https://github.com/oasisprotocol/oasis-core-ledger/blob/v$(VERSION)/CHANGELOG.md
+[Oasis Ledger Docs]: https://docs.oasis.dev/general/wallet-support/ledger
+
+endef
+
+# Instruct GoReleaser to create a "snapshot" release by default.
+GORELEASER_ARGS ?= release --snapshot --rm-dist
+# If the appropriate environment variable is set, create a real release.
+ifeq ($(OASIS_CORE_LEDGER_REAL_RELEASE), true)
+# Create temporary file with GitHub release's text.
+_RELEASE_NOTES_FILE := $(shell mktemp /tmp/oasis-core-ledger.XXXXX)
+_ := $(shell printf "$(subst ",\",$(subst $(newline),\n,$(RELEASE_TEXT)))" > $(_RELEASE_NOTES_FILE))
+GORELEASER_ARGS = release --release-notes $(_RELEASE_NOTES_FILE)
+endif
