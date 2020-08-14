@@ -107,10 +107,11 @@ GO := env -u GOPATH $(OASIS_GO)
 # binaries which is required for deterministic builds.
 GOFLAGS ?= -trimpath -v
 
-# Add the plugin version as a linker string value definition.
-ifneq ($(VERSION),)
-	export GOLDFLAGS ?= "-X github.com/oasisprotocol/oasis-core-ledger/common.SoftwareVersion=$(VERSION)"
-endif
+# Project's version as the linker's string value definition.
+export GOLDFLAGS_VERSION := -X github.com/oasisprotocol/oasis-core-ledger/common.SoftwareVersion=$(VERSION)
+
+# Go's linker flags.
+export GOLDFLAGS ?= "$(GOLDFLAGS_VERSION)"
 
 # Helper that ensures the git workspace is clean.
 define ENSURE_GIT_CLEAN =
