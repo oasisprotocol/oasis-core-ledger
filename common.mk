@@ -42,7 +42,7 @@ RELEASE_BRANCH ?= master
 # Determine the project's version from git.
 GIT_VERSION_LATEST_TAG := $(shell git describe --tags --match 'v*' --abbrev=0 2>/dev/null $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) || echo undefined)
 GIT_VERSION_LATEST := $(subst v,,$(GIT_VERSION_LATEST_TAG))
-GIT_VERSION_IS_TAG := $(shell git describe --tags --match 'v*' --exact-match 2>/dev/null $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) && echo YES || echo NO)
+GIT_VERSION_IS_TAG := $(shell git describe --tags --match 'v*' --exact-match &>/dev/null $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) && echo YES || echo NO)
 ifeq ($(GIT_VERSION_IS_TAG),YES)
 	VERSION := $(GIT_VERSION_LATEST)
 else
