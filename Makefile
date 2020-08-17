@@ -74,7 +74,7 @@ fetch-git:
 # Private target for bumping project's version using the Punch tool.
 # NOTE: It should not be invoked directly.
 _version-bump: fetch-git
-	@$(ENSURE_GIT_VERSION_EQUALS_PUNCH_VERSION)
+	@$(ENSURE_GIT_VERSION_LATEST_TAG_EQUALS_PUNCH_VERSION)
 	@$(PUNCH_BUMP_VERSION)
 	@git add $(_PUNCH_VERSION_FILE)
 

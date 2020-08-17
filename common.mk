@@ -88,11 +88,22 @@ endef
 
 # Helper that ensures project's version according to the latest Git tag equals
 # project's version as tracked by the Punch tool.
-define ENSURE_GIT_VERSION_EQUALS_PUNCH_VERSION =
+define ENSURE_GIT_VERSION_LATEST_TAG_EQUALS_PUNCH_VERSION =
 	if [[ "$(GIT_VERSION_LATEST)" != "$(_PUNCH_VERSION)" ]]; then \
 		$(ECHO) "$(RED)Error: Project version according to the latest Git tag from \
 		    $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) ($(GIT_VERSION_LATEST)) \
 			doesn't equal project's version in $(_PUNCH_VERSION_FILE) ($(_PUNCH_VERSION)).$(OFF)"; \
+		exit 1; \
+	fi
+endef
+
+# Helper that ensures project's version determined from git equals project's
+# version as tracked by the Punch tool.
+define ENSURE_GIT_VERSION_EQUALS_PUNCH_VERSION =
+	if [[ "$(VERSION)" != "$(_PUNCH_VERSION)" ]]; then \
+		$(ECHO) "$(RED)Error: Project's version for $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) \
+			determined from git ($(VERSION)) doesn't equal project's version in \
+			$(_PUNCH_VERSION_FILE) ($(_PUNCH_VERSION)).$(OFF)"; \
 		exit 1; \
 	fi
 endef
