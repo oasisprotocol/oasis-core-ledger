@@ -2,12 +2,15 @@
 
 [![CI test status][github-ci-tests-badge]][github-ci-tests-link]
 [![CI lint status][github-ci-lint-badge]][github-ci-lint-link]
+[![Release status][github-release-badge]][github-release-link]
 
 <!-- markdownlint-disable line-length -->
 [github-ci-tests-badge]: https://github.com/oasisprotocol/oasis-core-ledger/workflows/ci-tests/badge.svg
 [github-ci-tests-link]: https://github.com/oasisprotocol/oasis-core-ledger/actions?query=workflow:ci-tests+branch:master
 [github-ci-lint-badge]: https://github.com/oasisprotocol/oasis-core-ledger/workflows/ci-lint/badge.svg
 [github-ci-lint-link]: https://github.com/oasisprotocol/oasis-core-ledger/actions?query=workflow:ci-lint+branch:master
+[github-release-badge]: https://github.com/oasisprotocol/oasis-core-ledger/workflows/release/badge.svg
+[github-release-link]: https://github.com/oasisprotocol/oasis-core-ledger/actions?query=workflow:release
 <!-- markdownlint-enable line-length -->
 
 This projects aims to provide support for using a [Ledger] hardware
@@ -67,3 +70,11 @@ The `+dirty` part is optional and is only present if there are uncommitted
 changes in the working directory.
 
 [Semantic Versioning 2.0.0]: https://semver.org/spec/v2.0.0.html
+
+## Contributing
+
+### Release Process
+
+See our [Release Process] document.
+
+[Release Process]: docs/release-process.md

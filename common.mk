@@ -25,6 +25,13 @@ ECHO := $(ECHO_CMD) 1>&2
 # Boolean indicating whether to assume the 'yes' answer when confirming actions.
 ASSUME_YES ?= 0
 
+# Helper that asks the user to confirm the action.
+define CONFIRM_ACTION =
+	if [[ $(ASSUME_YES) != 1 ]]; then \
+		$(ECHO) -n "Are you sure? [y/N] " && read ans && [ $${ans:-N} = y ]; \
+	fi
+endef
+
 # Name of git remote pointing to the canonical upstream git repository, i.e.
 # git@github.com:oasisprotocol/oasis-core-ledger.git.
 OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE ?= origin
@@ -35,8 +42,8 @@ RELEASE_BRANCH ?= master
 # Determine the project's version from git.
 GIT_VERSION_LATEST_TAG := $(shell git describe --tags --match 'v*' --abbrev=0 2>/dev/null $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) || echo undefined)
 GIT_VERSION_LATEST := $(subst v,,$(GIT_VERSION_LATEST_TAG))
-GIT_VERSION_IS_TAG := $(shell git describe --tags --match 'v*' --exact-match 2>/dev/null $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) && echo YES || echo NO)
-ifeq ($(and $(GIT_VERSION_LATEST_TAG),$(GIT_VERSION_IS_TAG)),YES)
+GIT_VERSION_IS_TAG := $(shell git describe --tags --match 'v*' --exact-match &>/dev/null $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) && echo YES || echo NO)
+ifeq ($(GIT_VERSION_IS_TAG),YES)
 	VERSION := $(GIT_VERSION_LATEST)
 else
     # The current commit is not exactly a tag, append commit and dirty info to
@@ -81,11 +88,22 @@ endef
 
 # Helper that ensures project's version according to the latest Git tag equals
 # project's version as tracked by the Punch tool.
-define ENSURE_GIT_VERSION_EQUALS_PUNCH_VERSION =
+define ENSURE_GIT_VERSION_LATEST_TAG_EQUALS_PUNCH_VERSION =
 	if [[ "$(GIT_VERSION_LATEST)" != "$(_PUNCH_VERSION)" ]]; then \
 		$(ECHO) "$(RED)Error: Project version according to the latest Git tag from \
 		    $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) ($(GIT_VERSION_LATEST)) \
 			doesn't equal project's version in $(_PUNCH_VERSION_FILE) ($(_PUNCH_VERSION)).$(OFF)"; \
+		exit 1; \
+	fi
+endef
+
+# Helper that ensures project's version determined from git equals project's
+# version as tracked by the Punch tool.
+define ENSURE_GIT_VERSION_EQUALS_PUNCH_VERSION =
+	if [[ "$(VERSION)" != "$(_PUNCH_VERSION)" ]]; then \
+		$(ECHO) "$(RED)Error: Project's version for $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) \
+			determined from git ($(VERSION)) doesn't equal project's version in \
+			$(_PUNCH_VERSION_FILE) ($(_PUNCH_VERSION)).$(OFF)"; \
 		exit 1; \
 	fi
 endef
@@ -100,10 +118,11 @@ GO := env -u GOPATH $(OASIS_GO)
 # binaries which is required for deterministic builds.
 GOFLAGS ?= -trimpath -v
 
-# Add the plugin version as a linker string value definition.
-ifneq ($(VERSION),)
-	export GOLDFLAGS ?= "-X github.com/oasisprotocol/oasis-core-ledger/common.SoftwareVersion=$(VERSION)"
-endif
+# Project's version as the linker's string value definition.
+export GOLDFLAGS_VERSION := -X github.com/oasisprotocol/oasis-core-ledger/common.SoftwareVersion=$(VERSION)
+
+# Go's linker flags.
+export GOLDFLAGS ?= "$(GOLDFLAGS_VERSION)"
 
 # Helper that ensures the git workspace is clean.
 define ENSURE_GIT_CLEAN =
@@ -174,3 +193,116 @@ define WARN_BREAKING_CHANGES =
 		$(ECHO) "$(RED)         Make sure the version is bumped appropriately.$(OFF)"; \
 	fi
 endef
+
+# Helper that ensures the origin's release branch's HEAD doesn't contain any
+# Change Log fragments.
+define ENSURE_NO_CHANGELOG_FRAGMENTS =
+	if ! CHANGELOG_FILES=`git ls-tree -r --name-only $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) .changelog`; then \
+		$(ECHO) "$(RED)Error: Could not obtain Change Log fragments for $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) branch.$(OFF)"; \
+		exit 1; \
+	fi; \
+	if CHANGELOG_FRAGMENTS=`echo "$$CHANGELOG_FILES" | grep --invert-match --extended-regexp '(README.md|template.md.j2|.markdownlint.yml)'`; then \
+		$(ECHO) "$(RED)Error: Found the following Change Log fragments on $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) branch:"; \
+		$(ECHO) "$${CHANGELOG_FRAGMENTS}$(OFF)"; \
+		exit 1; \
+	fi
+endef
+
+# Helper that ensures the origin's release branch's HEAD contains a Change Log
+# section for the next release.
+define ENSURE_NEXT_RELEASE_IN_CHANGELOG =
+	if ! ( git show $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH):CHANGELOG.md | \
+			grep --quiet '^## $(_PUNCH_VERSION) (.*)' ); then \
+		$(ECHO) "$(RED)Error: Could not locate Change Log section for release $(_PUNCH_VERSION) on $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH) branch.$(OFF)"; \
+		exit 1; \
+	fi
+endef
+
+# Tag of the next release.
+_RELEASE_TAG := v$(_PUNCH_VERSION)
+
+# Helper that ensures the new release's tag doesn't already exist on the origin
+# remote.
+define ENSURE_RELEASE_TAG_EXISTS =
+	if ! git ls-remote --exit-code --tags $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) $(_RELEASE_TAG) 1>/dev/null; then \
+		$(ECHO) "$(RED)Error: Tag '$(_RELEASE_TAG)' doesn't exist on $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote.$(OFF)"; \
+		exit 1; \
+	fi
+endef
+
+# Helper that ensures the new release's tag doesn't already exist on the origin
+# remote.
+define ENSURE_RELEASE_TAG_DOES_NOT_EXIST =
+	if git ls-remote --exit-code --tags $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) $(_RELEASE_TAG) 1>/dev/null; then \
+		$(ECHO) "$(RED)Error: Tag '$(_RELEASE_TAG)' already exists on $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote.$(OFF)"; \
+		exit 1; \
+	fi; \
+	if git show-ref --quiet --tags $(_RELEASE_TAG); then \
+		$(ECHO) "$(RED)Error: Tag '$(_RELEASE_TAG)' already exists locally.$(OFF)"; \
+		exit 1; \
+	fi
+endef
+
+# Name of the stable release branch (if the current version is appropriate).
+_STABLE_BRANCH := $(shell python3 -c "exec(open('$(_PUNCH_VERSION_FILE)').read()); print('stable/{}.{}.x'.format(major, minor)) if patch == 0 else print('undefined')")
+
+# Helper that ensures the stable branch name is valid.
+define ENSURE_VALID_STABLE_BRANCH =
+	if [[ "$(_STABLE_BRANCH)" == "undefined" ]]; then \
+		$(ECHO) "$(RED)Error: Cannot create a stable release branch for version $(_PUNCH_VERSION).$(OFF)"; \
+		exit 1; \
+	fi
+endef
+
+# Helper that ensures the new stable branch doesn't already exist on the origin
+# remote.
+define ENSURE_STABLE_BRANCH_DOES_NOT_EXIST =
+	if git ls-remote --exit-code --heads $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) $(_STABLE_BRANCH) 1>/dev/null; then \
+		$(ECHO) "$(RED)Error: Branch '$(_STABLE_BRANCH)' already exists on $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote.$(OFF)"; \
+		exit 1; \
+	fi; \
+	if git show-ref --quiet --heads $(_STABLE_BRANCH); then \
+		$(ECHO) "$(RED)Error: Branch '$(_STABLE_BRANCH)' already exists locally.$(OFF)"; \
+		exit 1; \
+	fi
+endef
+
+# Helper that ensures $(RELEASE_BRANCH) variable contains a valid release branch
+# name.
+define ENSURE_VALID_RELEASE_BRANCH_NAME =
+	if [[ ! $(RELEASE_BRANCH) =~ ^(master|(stable/[0-9]+\.[0-9]+\.x$$)) ]]; then \
+		$(ECHO) "$(RED)Error: Invalid release branch name: '$(RELEASE_BRANCH)'."; \
+		exit 1; \
+	fi
+endef
+
+# Auxiliary variable that defines a new line for later substitution.
+define newline
+
+
+endef
+
+# GitHub release' text in Markdown format.
+define RELEASE_TEXT =
+For a list of changes in this release, see the [Change Log].
+
+*NOTE: If you are upgrading from an earlier release, please **carefully review**
+the [Change Log] for **Removals and Breaking changes**.*
+
+If you would like to use the Ledger signer plugin with Oasis Core, see the
+[Oasis Ledger Docs].
+
+[Change Log]: https://github.com/oasisprotocol/oasis-core-ledger/blob/v$(VERSION)/CHANGELOG.md
+[Oasis Ledger Docs]: https://docs.oasis.dev/general/wallet-support/ledger
+
+endef
+
+# Instruct GoReleaser to create a "snapshot" release by default.
+GORELEASER_ARGS ?= release --snapshot --rm-dist
+# If the appropriate environment variable is set, create a real release.
+ifeq ($(OASIS_CORE_LEDGER_REAL_RELEASE), true)
+# Create temporary file with GitHub release's text.
+_RELEASE_NOTES_FILE := $(shell mktemp /tmp/oasis-core-ledger.XXXXX)
+_ := $(shell printf "$(subst ",\",$(subst $(newline),\n,$(RELEASE_TEXT)))" > $(_RELEASE_NOTES_FILE))
+GORELEASER_ARGS = release --release-notes $(_RELEASE_NOTES_FILE)
+endif
