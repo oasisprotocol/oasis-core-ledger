@@ -11,6 +11,7 @@ import (
 	pluginSigner "github.com/oasisprotocol/oasis-core/go/common/crypto/signature/signers/plugin"
 
 	"github.com/oasisprotocol/oasis-core-ledger/common"
+	"github.com/oasisprotocol/oasis-core-ledger/common/wallet"
 	"github.com/oasisprotocol/oasis-core-ledger/internal"
 )
 
@@ -48,8 +49,8 @@ var (
 )
 
 type pluginConfig struct {
-	address string
-	index   uint32
+	walletID wallet.ID
+	index    uint32
 }
 
 func newPluginConfig(cfgStr string) (*pluginConfig, error) {
@@ -61,8 +62,8 @@ func newPluginConfig(cfgStr string) (*pluginConfig, error) {
 	}
 
 	var (
-		cfg                      pluginConfig
-		foundAddress, foundIndex bool
+		cfg                       pluginConfig
+		foundWalletID, foundIndex bool
 	)
 	for _, v := range kvStrs {
 		spl := strings.Split(v, "=")
@@ -72,12 +73,14 @@ func newPluginConfig(cfgStr string) (*pluginConfig, error) {
 
 		key := strings.ToLower(spl[0])
 		switch key {
-		case "address":
-			if foundAddress {
-				return nil, fmt.Errorf("address already configured")
+		case "wallet_id":
+			if foundWalletID {
+				return nil, fmt.Errorf("wallet ID already configured")
 			}
-			cfg.address = spl[1]
-			foundAddress = true
+			if err := cfg.walletID.UnmarshalHex(spl[1]); err != nil {
+				return nil, err
+			}
+			foundWalletID = true
 		case "index":
 			if foundIndex {
 				return nil, fmt.Errorf("index already configured")
@@ -93,8 +96,8 @@ func newPluginConfig(cfgStr string) (*pluginConfig, error) {
 		}
 	}
 
-	if !foundAddress {
-		return nil, fmt.Errorf("address not configured")
+	if !foundWalletID {
+		return nil, fmt.Errorf("wallet ID not configured")
 	}
 	if !foundIndex {
 		return nil, fmt.Errorf("index not configured")
@@ -104,8 +107,8 @@ func newPluginConfig(cfgStr string) (*pluginConfig, error) {
 }
 
 type ledgerPlugin struct {
-	address string
-	inner   map[signature.SignerRole]*ledgerSigner
+	walletID wallet.ID
+	inner    map[signature.SignerRole]*ledgerSigner
 }
 
 type ledgerSigner struct {
@@ -120,7 +123,7 @@ func (pl *ledgerPlugin) Initialize(config string, roles ...signature.SignerRole)
 	if err != nil {
 		return fmt.Errorf("ledger: failed to parse configuration: %w", err)
 	}
-	pl.address = cfg.address
+	pl.walletID = cfg.walletID
 	pl.inner = make(map[signature.SignerRole]*ledgerSigner)
 
 	for _, role := range roles {
@@ -151,7 +154,7 @@ func (pl *ledgerPlugin) Load(role signature.SignerRole, _mustGenerate bool) erro
 		return nil
 	}
 
-	dev, err := internal.ConnectLedgerOasisApp(pl.address, signer.path)
+	dev, err := internal.ConnectApp(pl.walletID, signer.path)
 	if err != nil {
 		return fmt.Errorf("ledger: failed to connect to device: %w", err)
 	}
