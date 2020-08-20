@@ -1,0 +1,12 @@
+# GitBook configuration.
+
+# For more information, see:
+# https://docs.gitbook.com/integrations/github/content-configuration.
+
+root: ./docs/
+
+​structure:
+  # NOTE: The following keys have no effect and GitBook currently always takes
+  # README.md and SUMMARY.md.
+  # readme: README.md
+  # summary: toc.md
