@@ -282,7 +282,7 @@ define newline
 
 endef
 
-# GitHub release' text in Markdown format.
+# GitHub release text in Markdown format.
 define RELEASE_TEXT =
 For a list of changes in this release, see the [Change Log].
 
@@ -290,10 +290,10 @@ For a list of changes in this release, see the [Change Log].
 the [Change Log] for **Removals and Breaking changes**.*
 
 If you would like to use the Ledger signer plugin with Oasis Core, see the
-[Oasis Ledger Docs].
+[Oasis Core Ledger Docs].
 
 [Change Log]: https://github.com/oasisprotocol/oasis-core-ledger/blob/v$(VERSION)/CHANGELOG.md
-[Oasis Ledger Docs]: https://docs.oasis.dev/general/wallet-support/ledger
+[Oasis Core Ledger Docs]: https://docs.oasis.dev/oasis-core-ledger/#usage
 
 endef
 
