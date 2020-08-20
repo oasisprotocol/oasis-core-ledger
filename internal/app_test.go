@@ -16,7 +16,7 @@ func TestFindLedger(t *testing.T) {
 
 	require := require.New(t)
 
-	app, err := FindLedgerOasisApp()
+	app, err := FindApp()
 	require.NoError(err, "FindLedgerOasisApp")
 	require.NotNil(app, "Must find a ledger device and initialize the interface")
 

@@ -7,6 +7,8 @@ import (
 	"github.com/oasisprotocol/oasis-core/go/common/crypto/signature"
 	"github.com/oasisprotocol/oasis-core/go/common/logging"
 	ledger_go "github.com/zondax/ledger-go"
+
+	"github.com/oasisprotocol/oasis-core-ledger/common/wallet"
 )
 
 const (
@@ -24,11 +26,11 @@ const (
 
 	// ListingPathCoinType is set to 474, the index registered to Oasis in the SLIP-0044 registry.
 	ListingPathCoinType uint32 = 474
-	// ListingPathAccount is the account index used to list and connect to Ledger devices by address.
+	// ListingPathAccount is the account index used to list and connect to Ledger devices.
 	ListingPathAccount uint32 = 0
 	// ListingPathChange indicates an external chain.
 	ListingPathChange uint32 = 0
-	// ListingPathIndex is the address index used to list and connect to Ledger devices by address.
+	// ListingPathIndex is the address index used to list and connect to Ledger devices.
 	ListingPathIndex uint32 = 0
 
 	errMsgInvalidParameters = "[APDU_CODE_BAD_KEY_HANDLE] The parameters in the data field are incorrect"
@@ -50,7 +52,7 @@ const (
 )
 
 var (
-	// ListingDerivationPath is the path used to list and connect to devices by address.
+	// ListingDerivationPath is the path used to list and connect to Ledger devices.
 	ListingDerivationPath = []uint32{
 		PathPurposeBIP44, ListingPathCoinType, ListingPathAccount, ListingPathChange, ListingPathIndex,
 	}
@@ -63,6 +65,11 @@ var (
 
 	minimumRequiredVersion = VersionInfo{0, 0, 3, 0}
 )
+
+type AppInfo struct {
+	WalletID wallet.ID
+	Version  VersionInfo
+}
 
 type LedgerAppMode int
 
@@ -105,11 +112,13 @@ func getModeForPath(path []uint32) LedgerAppMode {
 	}
 }
 
-// Displays existing Ledger Oasis apps by address.
-func ListOasisDevices(path []uint32) {
+// ListApps returns a list of Oasis Ledger Apps that could be connected to.
+func ListApps(path []uint32) []*AppInfo {
 	ledgerAdmin := ledger_go.NewLedgerAdmin()
 
 	mode := getModeForPath(path)
+
+	appInfoList := []*AppInfo{}
 
 	for i := 0; i < ledgerAdmin.CountDevices(); i++ {
 		ledgerDevice, err := ledgerAdmin.Connect(i)
@@ -126,7 +135,7 @@ func ListOasisDevices(path []uint32) {
 		app := newLedgerOasis(ledgerDevice, mode)
 		defer app.Close()
 
-		appVersion, err := app.GetVersion()
+		version, err := app.GetVersion()
 		if err != nil {
 			logger.Error("ListOasisDevices: couldn't obtain version",
 				"err", err,
@@ -136,24 +145,27 @@ func ListOasisDevices(path []uint32) {
 			continue
 		}
 
-		_, address, err := app.GetAddressPubKeyEd25519(path)
+		pubkey, _, err := app.GetAddressPubKeyEd25519(path)
 		if err != nil {
-			logger.Error("ListOasisDevices: couldn't obtain address",
+			logger.Error("ListOasisDevices: couldn't obtain public key",
 				"err", err,
 				"mode", mode,
 				"device_index", i,
 			)
 			continue
 		}
+		walletID := wallet.NewID(pubkey)
 
-		fmt.Printf("============ Device found\n")
-		fmt.Printf("Oasis App Version : %s\n", appVersion)
-		fmt.Printf("Oasis App Address : %s\n", address)
+		appInfoList = append(appInfoList, &AppInfo{
+			WalletID: walletID,
+			Version:  *version,
+		})
 	}
+	return appInfoList
 }
 
-// ConnectLedgerOasisApp connects to Oasis app based on address.
-func ConnectLedgerOasisApp(seekingAddress string, path []uint32) (*LedgerOasis, error) {
+// ConnectApp connects to the Oasis Ledger App with the given wallet ID.
+func ConnectApp(walletID wallet.ID, path []uint32) (*LedgerOasis, error) {
 	ledgerAdmin := ledger_go.NewLedgerAdmin()
 
 	mode := getModeForPath(path)
@@ -166,20 +178,21 @@ func ConnectLedgerOasisApp(seekingAddress string, path []uint32) (*LedgerOasis, 
 
 		app := newLedgerOasis(ledgerDevice, mode)
 
-		_, address, err := app.GetAddressPubKeyEd25519(path)
+		pubkey, _, err := app.GetAddressPubKeyEd25519(path)
 		if err != nil {
 			defer app.Close()
 			continue
 		}
-		if seekingAddress == "" || address == seekingAddress {
+		curWalletID := wallet.NewID(pubkey)
+		if curWalletID.Equal(walletID) {
 			return app, nil
 		}
 	}
-	return nil, fmt.Errorf("ledger/oasis: no app with specified address found")
+	return nil, fmt.Errorf("ledger/oasis: no app with specified wallet ID found")
 }
 
-// FindLedgerOasisApp finds the Oasis app running in a Ledger device.
-func FindLedgerOasisApp() (*LedgerOasis, error) {
+// FindApp finds the Oasis Ledger App running on the given Ledger device.
+func FindApp() (*LedgerOasis, error) {
 	ledgerAdmin := ledger_go.NewLedgerAdmin()
 
 	for i := 0; i < ledgerAdmin.CountDevices(); i++ {

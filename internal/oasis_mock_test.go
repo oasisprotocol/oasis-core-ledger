@@ -180,7 +180,7 @@ func parseBip44Path(rawPath []byte) ([]uint32, error) {
 
 func testFindLedgerOasisApp() (*LedgerOasis, error) {
 	if testUsingHardware() {
-		return FindLedgerOasisApp()
+		return FindApp()
 	}
 
 	return newLedgerOasis(&MockOasisLedger{}, LedgerAppMode(0)), nil
