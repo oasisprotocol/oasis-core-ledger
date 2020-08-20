@@ -58,7 +58,7 @@ func newPluginConfig(cfgStr string) (*pluginConfig, error) {
 
 	// Don't try to split cfgStr if no configuration is specified.
 	if cfgStr != "" {
-		kvStrs = strings.Split(cfgStr, ";")
+		kvStrs = strings.Split(cfgStr, ",")
 	}
 
 	var (
@@ -66,7 +66,7 @@ func newPluginConfig(cfgStr string) (*pluginConfig, error) {
 		foundWalletID, foundIndex bool
 	)
 	for _, v := range kvStrs {
-		spl := strings.Split(v, "=")
+		spl := strings.Split(v, ":")
 		if len(spl) != 2 {
 			return nil, fmt.Errorf("malformed k/v pair: '%s'", v)
 		}

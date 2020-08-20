@@ -17,7 +17,7 @@ func TestNewFactoryConfig(t *testing.T) {
 		index:    17,
 	}
 
-	cfgStr := fmt.Sprintf("wallet_id=%s;index=%d", expectedConfig.walletID, expectedConfig.index)
+	cfgStr := fmt.Sprintf("wallet_id:%s,index:%d", expectedConfig.walletID, expectedConfig.index)
 	cfg, err := newPluginConfig(cfgStr)
 	require.NoError(err, "newPluginConfig")
 	require.Equal(expectedConfig, cfg, "config should parse")
