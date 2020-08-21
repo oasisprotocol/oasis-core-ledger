@@ -5,6 +5,13 @@ To identify a Ledger device for use with the Oasis Core and Oasis Core Ledger
 CLI tools, unlock the device and make sure the Oasis App is open.
 {% endhint %}
 
+{% hint style="warning" %}
+While the Oasis App is available in _Developer mode_, opening the App brings
+up the "Pending Ledger review" screen.
+You need to press both buttons at once to close that screen and transition to
+the _ordinary_ "Oasis Ready" screen where the Oasis App is ready to be used.
+{% endhint %}
+
 To list all Ledger devices connected to a system, run:
 
 ```bash
