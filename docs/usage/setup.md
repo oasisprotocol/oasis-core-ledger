@@ -15,7 +15,7 @@ See [Prerequisites Guide in our general Docs] for more details.
 
 ## Downloading a Binary Release
 
-Browse to [Oasis Core Ledger's GitHub Releases page] and download the latest
+Go to [Oasis Core Ledger's GitHub Releases page] and download the latest
 version.
 
 [Oasis Core Ledger's GitHub Releases page]:
@@ -44,17 +44,17 @@ LEDGER_SIGNER_PATH="$HOME/oasis_core_ledger_1.0.0_linux_amd64/ledger-signer"
 
 ## Installing Oasis App on Ledger device
 
-The recommended way to install the [Oasis App] on your Ledger device is to
+The recommended way to install the [Oasis app] on your Ledger device is to
 install it via [Ledger Live]'s Manager.
 
 {% hint style="info" %}
 Currently, you will have enable _Developer mode_ by going to
-_Settings -> Experimental features_, to be able to find the Oasis App in
+_Settings -> Experimental features_, to be able to find the Oasis app in
 Ledger Live's Manager.
 {% endhint %}
 
 {% hint style="warning" %}
-The Oasis App requires an up-to-date firmware on your Ledger device:
+The Oasis app requires an up-to-date firmware on your Ledger device:
 
 - At least [version 1.6.1] released on Aug 11, 2020 on a Nano S device.
 - At least [version 1.2.4-4] released on Aug 4, 2020 on a Nano X device.
@@ -65,11 +65,18 @@ Follow Ledger's instructions for updating the firmware on your Ledger device:
 - [Nano X]
 {% endhint %}
 
-Once installed, the Oasis App will use the generated mnemonic stored on the
+{% hint style="info" %}
+To find the Oasis app in the Ledger Live app store, go to the App catalog
+search bar and type in `Oasis`. You may see both an `Oasis` app and
+`OasisVal` app come up in the search results. You need to use the
+standard `Oasis` app.
+{% endhint %}
+
+Once installed, the Oasis app will use the generated mnemonic stored on the
 Ledger device to generate the private & public key pairs for your accounts.
 
 <!-- markdownlint-disable line-length -->
-[Oasis App]: https://github.com/Zondax/ledger-oasis
+[Oasis app]: https://github.com/Zondax/ledger-oasis
 [Ledger Live]: https://www.ledger.com/ledger-live/
 [version 1.6.1]:
   https://support.ledger.com/hc/en-us/articles/360010446000-Ledger-Nano-S-firmware-release-notes
