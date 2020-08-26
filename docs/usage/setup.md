@@ -70,6 +70,8 @@ To find the Oasis app in the Ledger Live app store, go to the App catalog
 search bar and type in `Oasis`. You may see both an `Oasis` app and
 `OasisVal` app come up in the search results. You need to use the
 standard `Oasis` app.
+
+![Oasis app in Ledger Live](../assets/ledger-live-manager-oasis.png)
 {% endhint %}
 
 Once installed, the Oasis app will use the generated mnemonic stored on the
