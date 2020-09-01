@@ -19,7 +19,7 @@ TX_FLAGS=(--genesis.file /localhostdir/genesis.json
   --signer.dir entity-$LEDGER_INDEX
   --signer.backend plugin
   --signer.plugin.name ledger
-  --signer.plugin.path $LEDGER_SIGNER_PATH
+  --signer.plugin.path "$LEDGER_SIGNER_PATH"
   --signer.plugin.config "wallet_id:$LEDGER_WALLET_ID,index:$LEDGER_INDEX"
 )
 ```
