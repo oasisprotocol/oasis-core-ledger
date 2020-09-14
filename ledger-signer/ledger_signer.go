@@ -154,7 +154,7 @@ func (pl *ledgerPlugin) Load(role signature.SignerRole, _mustGenerate bool) erro
 		return nil
 	}
 
-	dev, err := internal.ConnectApp(pl.walletID, signer.path)
+	dev, err := internal.ConnectApp(pl.walletID, internal.ListingDerivationPath)
 	if err != nil {
 		return fmt.Errorf("ledger: failed to connect to device: %w", err)
 	}
