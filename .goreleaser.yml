@@ -25,6 +25,7 @@ builds:
       - "{{.Env.GOLDFLAGS_VERSION}}"
     goos:
       - linux
+      - darwin
     goarch:
       - amd64
 
@@ -42,6 +43,7 @@ builds:
       - "{{.Env.GOLDFLAGS_VERSION}}"
     goos:
       - linux
+      - darwin
     goarch:
       - amd64
 
