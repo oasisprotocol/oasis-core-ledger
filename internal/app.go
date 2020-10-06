@@ -113,6 +113,13 @@ func getModeForPath(path []uint32) LedgerAppMode {
 	}
 }
 
+// GetPath returns the BIP32 path for the given account index.
+func GetPath(index uint32) []uint32 {
+	return []uint32{
+		PathPurposeBIP44, ListingPathCoinType, ListingPathAccount, ListingPathChange, index,
+	}
+}
+
 // ListApps returns a list of Oasis Ledger Apps that could be connected to.
 func ListApps(path []uint32) []*AppInfo {
 	ledgerAdmin := ledger_go.NewLedgerAdmin()
