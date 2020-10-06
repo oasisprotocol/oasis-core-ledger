@@ -6,6 +6,7 @@ import (
 
 	"github.com/oasisprotocol/oasis-core/go/common/crypto/signature"
 	"github.com/oasisprotocol/oasis-core/go/common/logging"
+	staking "github.com/oasisprotocol/oasis-core/go/staking/api"
 	ledger_go "github.com/zondax/ledger-go"
 
 	"github.com/oasisprotocol/oasis-core-ledger/common/wallet"
@@ -355,7 +356,7 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context, transaction []byte)
 func (ledger *LedgerOasis) retrieveAddressPubKeyEd25519(
 	bip44Path []uint32,
 	requireConfirmation bool,
-) (pubkey []byte, addr string, err error) {
+) (rawPubkey []byte, rawAddr string, err error) {
 	pathBytes, err := getBip44bytes(bip44Path, 5)
 	if err != nil {
 		return nil, "", fmt.Errorf("ledger/oasis: failed to get BIP44 bytes: %w", err)
@@ -386,8 +387,26 @@ func (ledger *LedgerOasis) retrieveAddressPubKeyEd25519(
 		return nil, "", fmt.Errorf("ledger/oasis: truncated GetAddrEd25519 response")
 	}
 
-	pubkey = response[0:32]
-	addr = string(response[32:])
+	rawPubkey = response[0:32]
+	rawAddr = string(response[32:])
 
-	return pubkey, addr, nil
+	var pubkey signature.PublicKey
+	if err = pubkey.UnmarshalBinary(rawPubkey); err != nil {
+		return nil, "", fmt.Errorf("ledger/oasis: device returned malformed public key: %w", err)
+	}
+
+	var addrFromDevice staking.Address
+	if err = addrFromDevice.UnmarshalText([]byte(rawAddr)); err != nil {
+		return nil, "", fmt.Errorf("ledger/oasis: device returned malformed account address: %w", err)
+	}
+	addrFromPubkey := staking.NewAddress(pubkey)
+	if !addrFromDevice.Equal(addrFromPubkey) {
+		return nil, "", fmt.Errorf(
+			"ledger/oasis: account address computed on device (%s) doesn't match internally computed account address (%s)",
+			addrFromDevice,
+			addrFromPubkey,
+		)
+	}
+
+	return rawPubkey, rawAddr, nil
 }
