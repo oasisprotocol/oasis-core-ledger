@@ -81,6 +81,11 @@ jobs:
           version: v1.28
         # Always run this step so that all linting errors can be seen at once.
         if: always()
+      - name: Ensure a clean code checkout
+        uses: actions/checkout@v2
+        with:
+          clean: true
+        if: always()
       - name: Check go mod tidy
         run: |
           make lint-go-mod-tidy
