@@ -1,6 +1,6 @@
 module github.com/oasisprotocol/oasis-core-ledger
 
-go 1.14
+go 1.15
 
 // Updates the version used in spf13/cobra (dependency via tendermint) as
 // there is no release yet with the fix. Remove once an updated release of
