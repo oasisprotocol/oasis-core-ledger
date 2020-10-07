@@ -1,6 +1,6 @@
 module github.com/oasisprotocol/oasis-core-ledger
 
-go 1.14
+go 1.15
 
 // Updates the version used in spf13/cobra (dependency via tendermint) as
 // there is no release yet with the fix. Remove once an updated release of
@@ -9,8 +9,8 @@ go 1.14
 replace github.com/gorilla/websocket => github.com/gorilla/websocket v1.4.2
 
 require (
-	github.com/oasisprotocol/oasis-core/go v0.20.9
-	github.com/smartystreets/assertions v1.0.0 // indirect
+	github.com/oasisprotocol/oasis-core/go v0.2011.1
+	github.com/smartystreets/assertions v1.2.0 // indirect
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
