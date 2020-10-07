@@ -6,12 +6,21 @@ Oasis Core Ledger currently only works on x86_64 Linux systems.
 
 ## Prerequisites
 
-You will need an appropriate version `oasis-node` installed your system.
+### Oasis Core Ledger CLI
 
-See [Prerequisites Guide in our general Docs] for more details.
+There are no special requirements for running the Oasis Core Ledger CLI.
 
-[Prerequisites Guide in our general Docs]:
-  https://docs.oasis.dev/general/operator-docs/prerequisites-guide
+### Ledger Signer Plugin
+
+You will need an appropriate version Oasis Node CLI installed your system.
+
+For more details, see the [Oasis Node] documentation in the general
+[Oasis Docs].
+
+[Oasis Node]:
+  https://docs.oasis.dev/general/run-a-node/prerequisites/oasis-node
+[Oasis Docs]:
+  https://docs.oasis.dev/
 
 ## Downloading a Binary Release
 

@@ -1,11 +1,12 @@
 # Generating and Signing Transactions
 
-As described in the [Stake Management] part of [Oasis Docs], you need to set
-the appropriate **base flags** and **signer flags** for each transaction you
-want to generate.
+As described in the [Use Your Tokens' Setup] document of the general
+[Oasis Docs], you need to set the appropriate [Base and Signer CLI flags] for
+each transaction you want to generate.
 
 Make sure you set the following environment variables:
 
+- `GENESIS_FILE`: Location of the genesis file.
 - `LEDGER_SIGNER_PATH`: Location of the `ledger-signer` binary.
   See [Setup] for more details.
 - `LEDGER_WALLET_ID`: ID of the Ledger wallet to use.
@@ -15,7 +16,7 @@ Make sure you set the following environment variables:
 For convenience, you can set the `TX_FLAGS` environment variable like below:
 
 ```bash
-TX_FLAGS=(--genesis.file /localhostdir/genesis.json
+TX_FLAGS=(--genesis.file "$GENESIS_FILE"
   --signer.dir entity-$LEDGER_INDEX
   --signer.backend plugin
   --signer.plugin.name ledger
@@ -44,7 +45,7 @@ destination account, respectively.
 
 {% hint style="info" %}
 For a more detailed explanation of the transaction flags that were set, see
-[Common Transaction Flags] section of the [Stake Management] docs.
+[Common Transaction Flags] section of the [Use Your Tokens' Setup] doc.
 {% endhint %}
 
 Next, verify the transaction's fields on your Ledger device's screen.
@@ -54,11 +55,12 @@ transaction on your Ledger device by double-pressing the _Sign transaction_
 screen.
 
 <!-- markdownlint-disable line-length -->
-[Stake Management]:
-  https://docs.oasis.dev/general/operator-docs/stake-management
+[Use Your Tokens' Setup]: https://docs.oasis.dev/general/use-your-tokens/setup
 [Oasis Docs]: https://docs.oasis.dev/
+[Base and Signer CLI flags]:
+  https://docs.oasis.dev/general/use-your-tokens/setup#common-cli-flags
 [Common Transaction Flags]:
-  https://docs.oasis.dev/general/operator-docs/stake-management#common-transaction-flags
+  https://docs.oasis.dev/general/use-your-tokens/setup#common-transaction-flags
 [Setup]: setup.md#remembering-path-to-ledger-signer-plugin
 [Identifying Ledger Devices]: devices.md
 <!-- markdownlint-enable line-length -->
