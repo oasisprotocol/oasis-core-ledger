@@ -15,4 +15,5 @@ _TODO._
 
 ## Processes
 
+- [Versioning](versioning.md)
 - [Release Process](release-process.md)
