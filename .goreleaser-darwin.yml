@@ -1,23 +1,15 @@
-# GoReleaser configuration file.
+# GoReleaser configuration file for building macOS binaries.
 #
-# For more info, browse to http://goreleaser.com.
+# NOTE: Currently, GoReleaser doesn't support only building a subset of defined
+# operating systems and architectures.
+# For more details, see: https://github.com/goreleaser/goreleaser/issues/1852.
 #
-# NOTE: Cross-compiling Oasis Core Ledger binaries requires CGO to be enabled,
-# i.e. setting the CGO_ENABLED environment variable to 1.
-# This is not set in the configuration below since we use the following
-# procedure to prepare a release:
-# 1. Build (working) Oasis Core Ledger macOS binaries on macOS via Make's
-#    make release-build-darwin target.
-# 2. Build Linux and (non-working) macOS Oasis Core Ledger binaries on Linux
-#    with this configuration file.
-#    If CGO_ENABLED would be set to 1, this step would fail due to missing
-#    macOS-specific headers.
-# 3. Replace the non-working macOS Oasis Core Ledger binaries with the working
-#    ones built on macOS via a build post-hook.
-# 4. Prepare release tarballs and publish a release as normally.
+# Hence, we use this workaround of having a copy of GoReleaser's main
+# configuration file (.goreleaser.yml) and changing the 'goos' keys to only
+# contain 'darwin'.
 #
-# NOTE: The GoReleaser is not meant to be run directly, but rather through
-# Make's release-build target.
+# NOTE: This GoReleaser configuration is not meant to be run directly, but
+# rather through Make's release-build-darwin target.
 
 project_name: Oasis Core Ledger
 
@@ -38,12 +30,9 @@ builds:
       - -buildid=
       - "{{.Env.GOLDFLAGS_VERSION}}"
     goos:
-      - linux
       - darwin
     goarch:
       - amd64
-    hooks:
-      post: .scripts/goreleaser-replace-darwin-build.sh {{.Name}} {{.Target}}
 
   - id: ledger-signer
     main: ./ledger-signer/ledger_signer.go
@@ -58,12 +47,9 @@ builds:
       - -buildid=
       - "{{.Env.GOLDFLAGS_VERSION}}"
     goos:
-      - linux
       - darwin
     goarch:
       - amd64
-    hooks:
-      post: .scripts/goreleaser-replace-darwin-build.sh {{.Name}} {{.Target}}
 
 archives:
   - name_template: "{{replace .ProjectName \" \" \"_\" | tolower}}_{{.Version}}_{{.Os}}_{{.Arch}}"

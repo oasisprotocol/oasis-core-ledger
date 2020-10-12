@@ -119,6 +119,10 @@ release-stable-branch: fetch-git
 	@git push $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) $(_STABLE_BRANCH)
 	@$(ECHO) "$(CYAN)*** Branch '$(_STABLE_BRANCH)' has been sucessfully pushed to $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote.$(OFF)"
 
+# Build macOS release binaries.
+release-build-darwin:
+	@goreleaser build --config .goreleaser-darwin.yml --rm-dist --skip-validate
+
 # Build and publish the next release.
 release-build:
 	@$(ENSURE_GIT_VERSION_EQUALS_PUNCH_VERSION)
