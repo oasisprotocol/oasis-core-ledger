@@ -57,4 +57,5 @@ func init() { // nolint: gochecknoinits
 
 	// Register all of the sub-commands.
 	rootCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(showAddressCmd)
 }
