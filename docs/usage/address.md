@@ -17,8 +17,8 @@ See [Identifying Ledger Devices] for more details.
 This will display your wallet's address and show it on your Ledger's screen for
 confirmation.
 
-To just display your wallet's address without showing it on your Ledger's
-screen, pass the `--no-show` flag in the command above.
+To skip showing your wallet's address on your Ledger's screen, pass the
+`--skip-device` flag in the command above.
 
 {% hint style="info" %}
 You can obtain as many staking account addresses as needed for the same Ledger
