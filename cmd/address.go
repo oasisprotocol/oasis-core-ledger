@@ -21,9 +21,9 @@ const (
 	// cfgIndex configures the wallet's account index (0-based).
 	cfgIndex = "index"
 
-	// cfgDontShowOnDevice configures whether staking account address should not
-	// be shown on device's screen.
-	cfgDontShowOnDevice = "no-show"
+	// cfgSkipDevice configures whether showing staking account address on
+	// device's screen should be skipped or not.
+	cfgSkipDevice = "skip-device"
 )
 
 var (
@@ -71,7 +71,7 @@ func doShowAddress(cmd *cobra.Command, args []string) {
 
 	fmt.Println(address)
 
-	if !viper.GetBool(cfgDontShowOnDevice) {
+	if !viper.GetBool(cfgSkipDevice) {
 		fmt.Fprintln(os.Stderr, "Ensure account address shown on device's screen matches the outputted address.")
 		_, _, err = app.ShowAddressPubKeyEd25519(path)
 		if err != nil {
@@ -88,7 +88,7 @@ func doShowAddress(cmd *cobra.Command, args []string) {
 func init() { //nolint:gochecknoinits
 	showAddressFlags.String(cfgWalletID, "", "wallet ID")
 	showAddressFlags.Uint32(cfgIndex, 0, "wallet's account index (0-based) (default 0)")
-	showAddressFlags.Bool(cfgDontShowOnDevice, false, "don't show account address on device")
+	showAddressFlags.Bool(cfgSkipDevice, false, "skip showing account address on device")
 	_ = viper.BindPFlags(showAddressFlags)
 
 	showAddressCmd.Flags().AddFlagSet(showAddressFlags)
