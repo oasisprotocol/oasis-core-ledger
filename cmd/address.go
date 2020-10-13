@@ -39,12 +39,16 @@ var (
 )
 
 func doShowAddress(cmd *cobra.Command, args []string) {
-	var walletID wallet.ID
-	if err := walletID.UnmarshalHex(viper.GetString(cfgWalletID)); err != nil {
-		logger.Error("failed to parse wallet ID",
-			"err", err,
-		)
-		os.Exit(1)
+	var walletID *wallet.ID
+	hexWalletID := viper.GetString(cfgWalletID)
+	if hexWalletID != "" {
+		walletID = new(wallet.ID)
+		if err := walletID.UnmarshalHex(hexWalletID); err != nil {
+			logger.Error("failed to parse wallet ID",
+				"err", err,
+			)
+			os.Exit(1)
+		}
 	}
 
 	index := viper.GetUint32(cfgIndex)
@@ -86,7 +90,7 @@ func doShowAddress(cmd *cobra.Command, args []string) {
 }
 
 func init() { //nolint:gochecknoinits
-	showAddressFlags.String(cfgWalletID, "", "wallet ID")
+	showAddressFlags.String(cfgWalletID, "", "wallet ID (can be omitted if only a single device is connected)")
 	showAddressFlags.Uint32(cfgIndex, 0, "wallet's account index (0-based) (default 0)")
 	showAddressFlags.Bool(cfgSkipDevice, false, "skip showing account address on device")
 	_ = viper.BindPFlags(showAddressFlags)

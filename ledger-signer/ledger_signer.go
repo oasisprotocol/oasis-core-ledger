@@ -49,7 +49,7 @@ var (
 )
 
 type pluginConfig struct {
-	walletID wallet.ID
+	walletID *wallet.ID
 	index    uint32
 }
 
@@ -77,6 +77,7 @@ func newPluginConfig(cfgStr string) (*pluginConfig, error) {
 			if foundWalletID {
 				return nil, fmt.Errorf("wallet ID already configured")
 			}
+			cfg.walletID = new(wallet.ID)
 			if err := cfg.walletID.UnmarshalHex(spl[1]); err != nil {
 				return nil, err
 			}
@@ -96,9 +97,6 @@ func newPluginConfig(cfgStr string) (*pluginConfig, error) {
 		}
 	}
 
-	if !foundWalletID {
-		return nil, fmt.Errorf("wallet ID not configured")
-	}
 	if !foundIndex {
 		return nil, fmt.Errorf("index not configured")
 	}
@@ -107,7 +105,7 @@ func newPluginConfig(cfgStr string) (*pluginConfig, error) {
 }
 
 type ledgerPlugin struct {
-	walletID wallet.ID
+	walletID *wallet.ID
 	inner    map[signature.SignerRole]*ledgerSigner
 }
 

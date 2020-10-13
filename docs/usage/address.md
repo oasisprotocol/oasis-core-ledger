@@ -7,18 +7,19 @@ To obtain a staking account address that corresponds to the account with index
 0 on your Ledger wallet, use:
 
 ```bash
-oasis-core-ledger show_address --wallet_id <LEDGER-WALLET-ID>
+oasis-core-ledger show_address
 ```
-
-where `<LEDGER-WALLET-ID>` is replaced with the ID of your Ledger wallet.
-
-See [Identifying Ledger Devices] for more details.
 
 This will display your wallet's address and show it on your Ledger's screen for
 confirmation.
 
 To skip showing your wallet's address on your Ledger's screen, pass the
 `--skip-device` flag in the command above.
+
+If you have more that one Ledger wallet connected, you'll need specify which
+wallet to use by passing the `--wallet_id <LEDGER-WALLET-ID>` flag to the
+command above, replacing `<LEDGER-WALLET-ID>` with the ID of your Ledger wallet.
+See [Identifying Ledger Devices] for more details.
 
 {% hint style="info" %}
 You can obtain as many staking account addresses as needed for the same Ledger
