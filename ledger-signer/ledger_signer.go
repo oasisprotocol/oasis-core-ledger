@@ -97,10 +97,6 @@ func newPluginConfig(cfgStr string) (*pluginConfig, error) {
 		}
 	}
 
-	if !foundIndex {
-		return nil, fmt.Errorf("index not configured")
-	}
-
 	return &cfg, nil
 }
 
