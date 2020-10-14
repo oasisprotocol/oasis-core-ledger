@@ -11,9 +11,63 @@ on:
       # https://help.github.com/en/actions/automating-your-workflow-with-github-actions/workflow-syntax-for-github-actions#patterns-to-match-branches-and-tags.
       - 'v[0-9]+.[0-9]+*'
 
+# Global environment variables.
+env:
+  GORELEASER_URL_PREFIX: https://github.com/goreleaser/goreleaser/releases/download/
+  GORELEASER_VERSION: 0.141.0
+  CURL_CMD: curl --proto =https --tlsv1.2 -sSL
+
 jobs:
 
+  # Build macOS release binaries and upload them.
+  build-macos:
+    # NOTE: This name appears in GitHub's Checks API.
+    name: build-macos
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          # Fetch all history as the recommended way to fetch all tags and
+          # branches of the project.
+          # This allows the release helpers in common.mk to determine the
+          # project's version from git correctly.
+          # For more info, see:
+          # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+          fetch-depth: 0
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.15.x"
+      - name: Install GoReleaser
+        run: |
+          cd $(mktemp -d /tmp/goreleaser.XXXXX)
+          ${CURL_CMD} ${GORELEASER_URL_PREFIX}/v${GORELEASER_VERSION}/${GORELEASER_TARBALL} \
+            --output ${GORELEASER_TARBALL}
+          tar -xf ${GORELEASER_TARBALL}
+          sudo mv goreleaser /usr/local/bin
+        env:
+          GORELEASER_TARBALL: goreleaser_Darwin_x86_64.tar.gz
+      - name: Set RELEASE_BRANCH name for stable/bugfix releases
+        run: |
+          GIT_VERSION=${GITHUB_REF#refs/tags/v}
+          if [[ $GIT_VERSION != *.0 ]]; then
+            echo "RELEASE_BRANCH=stable/${GIT_VERSION%.*}.x" >> $GITHUB_ENV
+          fi
+      - name: Build macOS binaries
+        run: |
+          make release-build-darwin
+      - name: Upload macOS binaries
+        uses: actions/upload-artifact@v2.2.0
+        with:
+          name: macos-binaries
+          path: dist/*_darwin_amd64/*
+          if-no-files-found: error
+
+  # Build Linux release binaries, download macOS release binaries and publish a
+  # release.
   prepare-release:
+    needs: build-macos
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -41,16 +95,18 @@ jobs:
           tar -xf ${GORELEASER_TARBALL}
           sudo mv goreleaser /usr/local/bin
         env:
-          GORELEASER_URL_PREFIX: https://github.com/goreleaser/goreleaser/releases/download/
-          GORELEASER_VERSION: 0.141.0
           GORELEASER_TARBALL: goreleaser_Linux_x86_64.tar.gz
-          CURL_CMD: curl --proto =https --tlsv1.2 -sSL
       - name: Set RELEASE_BRANCH name for stable/bugfix releases
         run: |
           GIT_VERSION=${GITHUB_REF#refs/tags/v}
           if [[ $GIT_VERSION != *.0 ]]; then
-            echo ::set-env name=RELEASE_BRANCH::stable/${GIT_VERSION%.*}.x
+            echo "RELEASE_BRANCH=stable/${GIT_VERSION%.*}.x" >> $GITHUB_ENV
           fi
+      - name: Download macOS binaries
+        uses: actions/download-artifact@v2.0.5
+        with:
+          name: macos-binaries
+          path: ../macos-binaries
       - name: Build and publish the next release
         run: |
           make release-build

@@ -1,7 +1,7 @@
 # Setup
 
 {% hint style="warning" %}
-Oasis Core Ledger currently only works on x86_64 Linux systems.
+Oasis Core Ledger is currently only supported on x86_64 Linux and macOS systems.
 {% endhint %}
 
 ## Prerequisites
@@ -17,10 +17,21 @@ You will need an appropriate version Oasis Node CLI installed your system.
 For more details, see the [Oasis Node] documentation in the general
 [Oasis Docs].
 
+{% hint style="warning" %}
+Currently, there are no binary releases of the Oasis Node CLI for macOS systems.
+
+To be able to use the Ledger signer plugin on a macOS system, you will need to
+[build the Oasis Node CLI from source].
+{% endhint %}
+
 [Oasis Node]:
   https://docs.oasis.dev/general/run-a-node/prerequisites/oasis-node
 [Oasis Docs]:
   https://docs.oasis.dev/
+<!-- markdownlint-disable line-length -->
+[build the Oasis Node CLI from source]:
+  https://docs.oasis.dev/general/run-a-node/prerequisites/oasis-node#building-from-source
+<!-- markdownlint-enable line-length -->
 
 ## Downloading a Binary Release
 
