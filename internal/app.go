@@ -173,30 +173,50 @@ func ListApps(path []uint32) []*AppInfo {
 }
 
 // ConnectApp connects to the Oasis Ledger App with the given wallet ID.
-func ConnectApp(walletID wallet.ID, path []uint32) (*LedgerOasis, error) {
+//
+// NOTE: If wallet ID is not given and there is a single device connected to the
+// system, it connects to this device's Oasis Ledger App.
+func ConnectApp(walletID *wallet.ID, path []uint32) (*LedgerOasis, error) {
 	ledgerAdmin := ledger_go.NewLedgerAdmin()
 
 	mode := getModeForPath(path)
 
-	for i := 0; i < ledgerAdmin.CountDevices(); i++ {
-		ledgerDevice, err := ledgerAdmin.Connect(i)
-		if err != nil {
-			continue
-		}
+	nDevices := ledgerAdmin.CountDevices()
 
+	switch {
+	case nDevices == 0:
+		return nil, fmt.Errorf("ledger/oasis: no device detected")
+	case walletID == nil && nDevices != 1:
+		return nil, fmt.Errorf("ledger/oasis: wallet ID is required when multiple devices are connected")
+	case walletID == nil && nDevices == 1:
+		ledgerDevice, err := ledgerAdmin.Connect(0)
+		if err != nil {
+			return nil, fmt.Errorf("ledger/oasis: could not connect to device")
+		}
 		app := newLedgerOasis(ledgerDevice, mode)
 
-		pubkey, _, err := app.GetAddressPubKeyEd25519(path)
-		if err != nil {
-			defer app.Close()
-			continue
+		return app, nil
+	default:
+		for i := 0; i < nDevices; i++ {
+			ledgerDevice, err := ledgerAdmin.Connect(i)
+			if err != nil {
+				continue
+			}
+
+			app := newLedgerOasis(ledgerDevice, mode)
+
+			pubkey, _, err := app.GetAddressPubKeyEd25519(path)
+			if err != nil {
+				defer app.Close()
+				continue
+			}
+			curWalletID := wallet.NewID(pubkey)
+			if curWalletID.Equal(*walletID) {
+				return app, nil
+			}
 		}
-		curWalletID := wallet.NewID(pubkey)
-		if curWalletID.Equal(walletID) {
-			return app, nil
-		}
+		return nil, fmt.Errorf("ledger/oasis: no device with specified wallet ID found")
 	}
-	return nil, fmt.Errorf("ledger/oasis: no app with specified wallet ID found")
 }
 
 // FindApp finds the Oasis Ledger App running on the given Ledger device.

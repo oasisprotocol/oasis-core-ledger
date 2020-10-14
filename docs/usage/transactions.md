@@ -9,8 +9,6 @@ Make sure you set the following environment variables:
 - `GENESIS_FILE`: Location of the genesis file.
 - `LEDGER_SIGNER_PATH`: Location of the `ledger-signer` binary.
   See [Setup] for more details.
-- `LEDGER_WALLET_ID`: ID of the Ledger wallet to use.
-  See [Identifying Ledger Devices] for more details.
 - `LEDGER_INDEX`: Index (0-based) of the account on the Ledger device to use.
 
 For convenience, you can set the `TX_FLAGS` environment variable like below:
@@ -21,9 +19,23 @@ TX_FLAGS=(--genesis.file "$GENESIS_FILE"
   --signer.backend plugin
   --signer.plugin.name ledger
   --signer.plugin.path "$LEDGER_SIGNER_PATH"
-  --signer.plugin.config "wallet_id:$LEDGER_WALLET_ID,index:$LEDGER_INDEX"
+  --signer.plugin.config "index:$LEDGER_INDEX"
 )
 ```
+
+{% hint style="info" %}
+In case you will have more than one Ledger device connected, you will need to
+specify which device to use by setting the `wallet_id` configuration key in
+the `--signer.plugin.config` flag above, separating multiple configurations with
+a comma (`,`), i.e.
+
+```
+--signer.plugin.config "index:$LEDGER_INDEX,wallet_id:<LEDGER-WALLET-ID>"
+```
+
+where `<LEDGER-WALLET-ID>` is replaced with the ID of your Ledger wallet.
+See [Identifying Ledger Devices] for more details.
+{% endhint %}
 
 Then, you can generate and sign a transaction, e.g. a transfer transaction, by
 running:

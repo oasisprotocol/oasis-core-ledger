@@ -12,8 +12,10 @@ import (
 func TestNewFactoryConfig(t *testing.T) {
 	require := require.New(t)
 
+	walletID := wallet.NewID([]byte("1640 Riverside Drive"))
+
 	expectedConfig := &pluginConfig{
-		walletID: wallet.NewID([]byte("1640 Riverside Drive")),
+		walletID: &walletID,
 		index:    17,
 	}
 

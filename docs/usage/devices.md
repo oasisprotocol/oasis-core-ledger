@@ -26,11 +26,5 @@ the one below:
   App version: 1.7.2
 ```
 
-From now on, use the `Wallet ID` to identify the Ledger device you want to use.
-
-For convenience, set the `LEDGER_WALLET_ID` environment value to its value,
-e.g.:
-
-```bash
-LEDGER_WALLET_ID=431fc6
-```
+You can pass this ID when you need to specify which Ledger device you want to
+connect to via `--wallet_id` CLI flag or `wallet_id` configuration key.
