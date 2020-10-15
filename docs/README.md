@@ -5,8 +5,9 @@ This projects aims to provide support for using a [Ledger] hardware wallet with
 
 It provides:
 
-- Oasis Core signer plugin for Ledger devices.
-- CLI for running helper commands, e.g. listing ledger devices.
+- Oasis Core signer plugin for Ledger wallets.
+- CLI for running helper commands, e.g. showing an account address or listing
+  Ledger wallets.
 
 [Ledger]: https://www.ledger.com/
 [Oasis Core]: https://github.com/oasisprotocol/oasis-core
@@ -14,10 +15,10 @@ It provides:
 ## Usage
 
 - [Setup](usage/setup.md)
-- [Identifying Ledger devices](usage/devices.md)
 - [Obtaining Account Address](usage/address.md)
 - [Exporting Public Key to Entity](usage/entity.md)
 - [Generating and Signing Transactions](usage/transactions.md)
+- [Identifying Wallets](usage/wallets.md)
 
 ## Development
 
