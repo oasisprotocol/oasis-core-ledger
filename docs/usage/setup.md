@@ -62,9 +62,9 @@ For convenience, set the `LEDGER_SIGNER_PATH` to the location of the
 LEDGER_SIGNER_PATH="$HOME/oasis_core_ledger_1.0.0_linux_amd64/ledger-signer"
 ```
 
-## Installing Oasis App on Ledger device
+## Installing Oasis App on Your Ledger Wallet
 
-The recommended way to install the [Oasis app] on your Ledger device is to
+The recommended way to install the [Oasis app] on your Ledger wallet is to
 install it via [Ledger Live]'s Manager.
 
 {% hint style="info" %}
@@ -74,12 +74,12 @@ Ledger Live's Manager.
 {% endhint %}
 
 {% hint style="warning" %}
-The Oasis app requires an up-to-date firmware on your Ledger device:
+The Oasis app requires an up-to-date firmware on your Ledger wallet:
 
 - At least [version 1.6.1] released on Aug 11, 2020 on a Nano S device.
 - At least [version 1.2.4-4] released on Aug 4, 2020 on a Nano X device.
 
-Follow Ledger's instructions for updating the firmware on your Ledger device:
+Follow Ledger's instructions for updating the firmware on your Ledger wallet:
 
 - [Nano S]
 - [Nano X]
@@ -87,15 +87,16 @@ Follow Ledger's instructions for updating the firmware on your Ledger device:
 
 {% hint style="info" %}
 To find the Oasis app in the Ledger Live app store, go to the App catalog
-search bar and type in `Oasis`. You may see both an `Oasis` app and
-`OasisVal` app come up in the search results. You need to use the
-standard `Oasis` app.
+search bar and type in _Oasis_.
+
+You may see both the _Oasis_ app and the _OasisVal_ app come up in the search
+results. You need to use the standard _Oasis_ app.
 
 ![Oasis app in Ledger Live](../assets/ledger-live-manager-oasis.png)
 {% endhint %}
 
 Once installed, the Oasis app will use the generated mnemonic stored on the
-Ledger device to generate the private & public key pairs for your accounts.
+Ledger wallet to generate the private & public key pairs for your accounts.
 
 <!-- markdownlint-disable line-length -->
 [Oasis app]: https://github.com/Zondax/ledger-oasis

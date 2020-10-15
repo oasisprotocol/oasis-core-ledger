@@ -24,8 +24,9 @@ wallet with [Oasis Core].
 
 It provides:
 
-- Oasis Core signer plugin for Ledger devices.
-- CLI for running helper commands, e.g. list ledger devices.
+- Oasis Core signer plugin for Ledger wallets.
+- CLI for running helper commands, e.g. showing an account address or listing
+  Ledger wallets.
 
 ## Documentation
 

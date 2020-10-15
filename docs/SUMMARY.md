@@ -5,10 +5,10 @@
 ## Usage
 
 - [Setup](usage/setup.md)
-- [Identifying Ledger devices](usage/devices.md)
 - [Obtaining Account Address](usage/address.md)
 - [Exporting Public Key to Entity](usage/entity.md)
 - [Generating and Signing Transactions](usage/transactions.md)
+- [Identifying Wallets](usage/wallets.md)
 
 ## Development
 

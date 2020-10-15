@@ -1,5 +1,17 @@
 # Generating and Signing Transactions
 
+{% hint style="info" %}
+Before following the instructions below, make sure your Ledger wallet is
+unlocked and the Oasis App is open.
+{% endhint %}
+
+{% hint style="warning" %}
+While the Oasis App is available in _Developer mode_, opening the App brings
+up the "Pending Ledger review" screen.
+You need to press both buttons at once to close that screen and transition to
+the _ordinary_ "Oasis Ready" screen where the Oasis App is ready to be used.
+{% endhint %}
+
 As described in the [Use Your Tokens' Setup] document of the general
 [Oasis Docs], you need to set the appropriate [Base and Signer CLI flags] for
 each transaction you want to generate.
@@ -14,16 +26,20 @@ For convenience, you can set the `TX_FLAGS` environment variable like below:
 
 ```bash
 TX_FLAGS=(--genesis.file "$GENESIS_FILE"
-  --signer.dir entity-$LEDGER_INDEX
+  --signer.dir entity
   --signer.backend plugin
   --signer.plugin.name ledger
   --signer.plugin.path "$LEDGER_SIGNER_PATH"
 )
 ```
 
+Make sure you replace `entity` with the name of the directory that contains the
+`entity.json` file for you Ledger wallet's account.
+See [Exporting Public Key to Entity] for more details.
+
 {% hint style="info" %}
-In case you will have more than one Ledger device connected, you will need to
-specify which device to use by setting the `wallet_id` configuration key in
+In case you will have more than one Ledger wallet connected, you will need to
+specify which wallet to use by setting the `wallet_id` configuration key in
 the `--signer.plugin.config` flag, i.e.
 
 ```
@@ -31,7 +47,7 @@ the `--signer.plugin.config` flag, i.e.
 ```
 
 where `<LEDGER-WALLET-ID>` is replaced with the ID of your Ledger wallet.
-See [Identifying Ledger Devices] for more details.
+See [Identifying Wallets] for more details.
 {% endhint %}
 
 {% hint style="info" %}
@@ -78,10 +94,10 @@ For a more detailed explanation of the transaction flags that were set, see
 [Common Transaction Flags] section of the [Use Your Tokens' Setup] doc.
 {% endhint %}
 
-Next, verify the transaction's fields on your Ledger device's screen.
+Next, verify the transaction's fields on your Ledger wallet's screen.
 
 After you've confirmed the transaction's fields are correct, sign the
-transaction on your Ledger device by double-pressing the _Sign transaction_
+transaction on your Ledger wallet by double-pressing the _Sign transaction_
 screen.
 
 <!-- markdownlint-disable line-length -->
@@ -92,5 +108,6 @@ screen.
 [Common Transaction Flags]:
   https://docs.oasis.dev/general/use-your-tokens/setup#common-transaction-flags
 [Setup]: setup.md#remembering-path-to-ledger-signer-plugin
-[Identifying Ledger Devices]: devices.md
+[Exporting Public Key to Entity]: entity.md
+[Identifying Wallets]: wallets.md
 <!-- markdownlint-enable line-length -->
