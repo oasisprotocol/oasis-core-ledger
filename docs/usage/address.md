@@ -28,10 +28,13 @@ confirmation.
 To skip showing your wallet's address on your Ledger's screen, pass the
 `--skip-device` flag in the command above.
 
-If you have more that one Ledger wallet connected, you'll need specify which
-wallet to use by passing the `--wallet_id <LEDGER-WALLET-ID>` flag to the
-command above, replacing `<LEDGER-WALLET-ID>` with the ID of your Ledger wallet.
+{% hint style="info" %}
+In case you will have more than one Ledger wallet connected, you'll need to
+specify which wallet to use by passing the `--wallet_id <LEDGER-WALLET-ID>` flag
+to the command above, replacing `<LEDGER-WALLET-ID>` with the ID of your Ledger
+wallet.
 See [Identifying Wallets] for more details.
+{% endhint %}
 
 {% hint style="info" %}
 You can obtain as many staking account addresses as needed for the same Ledger
