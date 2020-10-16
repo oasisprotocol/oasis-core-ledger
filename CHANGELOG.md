@@ -12,6 +12,102 @@ The format is inspired by [Keep a Changelog].
 
 <!-- TOWNCRIER -->
 
+## 1.1.0 (2020-10-16)
+
+### Features
+
+- cmd: Add `show_address` CLI command for obtaining a wallet's account address
+  ([#59](https://github.com/oasisprotocol/oasis-core-ledger/issues/59),
+   [#71](https://github.com/oasisprotocol/oasis-core-ledger/issues/71),
+   [#72](https://github.com/oasisprotocol/oasis-core-ledger/issues/72))
+
+- release: Add macOS builds
+  ([#65](https://github.com/oasisprotocol/oasis-core-ledger/issues/65))
+
+- ledger-signer: Make `wallet_id` and `index` configurations optional
+  ([#72](https://github.com/oasisprotocol/oasis-core-ledger/issues/72),
+   [#75](https://github.com/oasisprotocol/oasis-core-ledger/issues/75))
+
+### Bug Fixes
+
+- ledger-signer: Fix discovery when using a non-zero index
+  ([#54](https://github.com/oasisprotocol/oasis-core-ledger/issues/54))
+
+### Documentation Improvements
+
+- docs: Add note on how to bypass the "Pending Ledger review" screen
+  ([#49](https://github.com/oasisprotocol/oasis-core-ledger/issues/49))
+
+- doc: Move [Versioning] from the main [README] to its own document
+  ([#61](https://github.com/oasisprotocol/oasis-core-ledger/issues/61))
+
+  [README]: README.md
+  [Versioning]: doc/versioning.md
+
+- Refresh the main [README](README.md)
+  ([#61](https://github.com/oasisprotocol/oasis-core-ledger/issues/61))
+
+- Refresh [Usage] docs
+  ([#61](https://github.com/oasisprotocol/oasis-core-ledger/issues/61),
+   [#78](https://github.com/oasisprotocol/oasis-core-ledger/issues/78),
+   [#79](https://github.com/oasisprotocol/oasis-core-ledger/issues/79))
+
+  [Usage]: docs/README.md#usage
+
+### Internal Changes
+
+- Ignore Punch's version file when running towncrier check
+  ([#56](https://github.com/oasisprotocol/oasis-core-ledger/issues/56))
+
+- internal: Add check that ensures staking account address computation matches
+  ([#58](https://github.com/oasisprotocol/oasis-core-ledger/issues/58))
+
+  This makes Oasis Core Ledger fail if the staking account address computed on
+  the device doesn't match the staking account address computed via Oasis Core's
+  functions.
+
+- internal: Refactor public key handling in mocked tests
+  ([#58](https://github.com/oasisprotocol/oasis-core-ledger/issues/58))
+
+  Rename `mockKeys` type to `mockKey` and add methods that automatically compute
+  the corresponding raw public key and raw staking account address.
+
+- github: Also run ci-tests workflow on macOS
+  ([#60](https://github.com/oasisprotocol/oasis-core-ledger/issues/60))
+
+- Setup dependabot
+  ([#62](https://github.com/oasisprotocol/oasis-core-ledger/issues/62))
+
+- go: Bump Oasis Core dependency to 20.11.2
+  ([#62](https://github.com/oasisprotocol/oasis-core-ledger/issues/62),
+   [#73](https://github.com/oasisprotocol/oasis-core-ledger/issues/73))
+
+- Bump required Go version to 1.15
+  ([#64](https://github.com/oasisprotocol/oasis-core-ledger/issues/64),
+   [#66](https://github.com/oasisprotocol/oasis-core-ledger/issues/66))
+
+- github: Replace deprecated `set-env` workflow command with environment file
+  ([#65](https://github.com/oasisprotocol/oasis-core-ledger/issues/65))
+
+- ci: Update actions/setup-go requirement to v2.1.3
+  ([#67](https://github.com/oasisprotocol/oasis-core-ledger/issues/67))
+
+- ci: bump actions/setup-python from v1 to v2.1.4
+  ([#68](https://github.com/oasisprotocol/oasis-core-ledger/issues/68),
+   [#76](https://github.com/oasisprotocol/oasis-core-ledger/issues/76))
+
+- ci: bump actions/setup-node from v1 to v2.1.2
+  ([#69](https://github.com/oasisprotocol/oasis-core-ledger/issues/69))
+
+- ci: bump golangci/golangci-lint-action from v2 to v2.2.1
+  ([#70](https://github.com/oasisprotocol/oasis-core-ledger/issues/70))
+
+- internal: Change `ConnectApp()` to not require wallet ID in single device case
+  ([#72](https://github.com/oasisprotocol/oasis-core-ledger/issues/72))
+
+- go: bump github.com/spf13/cobra from 1.0.0 to 1.1.0
+  ([#77](https://github.com/oasisprotocol/oasis-core-ledger/issues/77))
+
 ## 1.0.0 (2020-08-20)
 
 ### Process
