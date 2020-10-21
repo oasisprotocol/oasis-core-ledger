@@ -32,7 +32,6 @@ lint-go:
 	@env -u GOPATH golangci-lint run
 
 lint-git:
-	@$(ECHO) "$(CYAN)*** Runnint gitlint...$(OFF)"
 	@$(CHECK_GITLINT)
 
 lint-docs:
