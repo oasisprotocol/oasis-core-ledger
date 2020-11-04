@@ -593,10 +593,10 @@ github.com/nats-io/nkeys v0.1.3/go.mod h1:xpnFELMwJABBLVhffcfd1MZx6VsNRFpEugbxzi
 github.com/nats-io/nuid v1.0.1/go.mod h1:19wcPz3Ph3q0Jbyiqsd0kePYG7A95tJPxeL+1OSON2c=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
 github.com/oasisprotocol/deoxysii v0.0.0-20200527154044-851aec403956/go.mod h1:cE5EgXTIhq5oAVdZ7LZd1FjTRLALPEzv93CWzBtDkyI=
-github.com/oasisprotocol/ed25519 v0.0.0-20200819094954-65138ca6ec7c h1:/Ydlzrdta1Gegs20RPue2Tpkmh28dMjkwqDyikptskA=
-github.com/oasisprotocol/ed25519 v0.0.0-20200819094954-65138ca6ec7c/go.mod h1:IZbb50w3AB72BVobEF6qG93NNSrTw/V2QlboxqSu3Xw=
-github.com/oasisprotocol/oasis-core/go v0.2011.3 h1:c57da73LldzhMklVvAtIwyBTqzCZfffEoztgswBOMic=
-github.com/oasisprotocol/oasis-core/go v0.2011.3/go.mod h1:vPleCRLq2EkDObpZz5l23Kzn84jy0+vFbdMdtd7mDy4=
+github.com/oasisprotocol/ed25519 v0.0.0-20201103162138-a1dadbe24dd5 h1:gYJn5qB/A2HWxD9liWL+YSYDAn8sFToA37M90y+9l7M=
+github.com/oasisprotocol/ed25519 v0.0.0-20201103162138-a1dadbe24dd5/go.mod h1:IZbb50w3AB72BVobEF6qG93NNSrTw/V2QlboxqSu3Xw=
+github.com/oasisprotocol/oasis-core/go v0.2012.0 h1:9B2K1f/9IRrN/Ye2l89o6aluFYYutm+UDFPKyfvYbrE=
+github.com/oasisprotocol/oasis-core/go v0.2012.0/go.mod h1:qT6QW6oyfXge/1F6xJs4HjzItRjESN7KH81C5Lr+j8I=
 github.com/oklog/oklog v0.3.2/go.mod h1:FCV+B7mhrz4o+ueLpx+KqkyXRGMWOYEvfiXtdGtbWGs=
 github.com/oklog/run v1.0.0 h1:Ru7dDtJNOyC66gQ5dQmaCa0qIsAUFY3sFpK1Xk8igrw=
 github.com/oklog/run v1.0.0/go.mod h1:dlhp/R75TPv97u0XWUtDeV/lRKWPKSdTuV0TZvrmrQA=
