@@ -191,7 +191,12 @@ func ConnectApp(walletID *wallet.ID, path []uint32) (*LedgerOasis, error) {
 	case walletID == nil && nDevices == 1:
 		ledgerDevice, err := ledgerAdmin.Connect(0)
 		if err != nil {
-			return nil, fmt.Errorf("ledger/oasis: could not connect to device")
+			logger.Error("ConnectApp: couldn't connect to device",
+				"err", err,
+				"mode", mode,
+				"device_index", 0,
+			)
+			return nil, fmt.Errorf("ledger/oasis: couldn't connect to device: %w", err)
 		}
 		app := newLedgerOasis(ledgerDevice, mode)
 
@@ -200,6 +205,11 @@ func ConnectApp(walletID *wallet.ID, path []uint32) (*LedgerOasis, error) {
 		for i := 0; i < nDevices; i++ {
 			ledgerDevice, err := ledgerAdmin.Connect(i)
 			if err != nil {
+				logger.Error("ConnectApp: couldn't connect to device",
+					"err", err,
+					"mode", mode,
+					"device_index", i,
+				)
 				continue
 			}
 
@@ -207,6 +217,11 @@ func ConnectApp(walletID *wallet.ID, path []uint32) (*LedgerOasis, error) {
 
 			pubkey, _, err := app.GetAddressPubKeyEd25519(path)
 			if err != nil {
+				logger.Error("ConnectApp couldn't obtain public key",
+					"err", err,
+					"mode", mode,
+					"device_index", i,
+				)
 				defer app.Close()
 				continue
 			}
@@ -226,6 +241,10 @@ func FindApp() (*LedgerOasis, error) {
 	for i := 0; i < ledgerAdmin.CountDevices(); i++ {
 		ledgerDevice, err := ledgerAdmin.Connect(i)
 		if err != nil {
+			logger.Error("FindApp: couldn't connect to device",
+				"err", err,
+				"device_index", 0,
+			)
 			continue
 		}
 
@@ -233,11 +252,19 @@ func FindApp() (*LedgerOasis, error) {
 
 		appVersion, err := app.GetVersion()
 		if err != nil {
+			logger.Error("FindApp: couldn't get app's version",
+				"err", err,
+				"device_index", 0,
+			)
 			app.Close()
 			continue
 		}
 
 		if err = app.CheckVersion(*appVersion); err != nil {
+			logger.Error("FindApp: app's version is not supported",
+				"err", err,
+				"device_index", 0,
+			)
 			app.Close()
 			continue
 		}
