@@ -388,7 +388,7 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context, transaction []byte)
 
 		response, err := ledger.device.Exchange(message)
 
-		logger.Debug("Sign",
+		logger.Info("Sign",
 			"err", err,
 			"response", hex.EncodeToString(response),
 		)
