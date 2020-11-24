@@ -67,7 +67,7 @@ variables:
 - `RELEASE_BRANCH` (default: `master`): Name of the branch where to tag the next
   release.
 
-[Make]: https://en.wikipedia.org/wiki/Make_(software)
+[Make]: https://en.wikipedia.org/wiki/Make_\(software\)
 [Change Log]: ../CHANGELOG.md
 [Change Log Fragments]: ../.changelog/README.md
 [Versioning]: ../README.md#versioning
