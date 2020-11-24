@@ -10,7 +10,7 @@ This repository follows the same Change Log fragments style as the
 Please, see [its Change Log fragments documentation] for more details.
 
 [Change Log]: ../CHANGELOG.md
-[towncrier]: https://github.com/oasislabs/towncrier
+[towncrier]: https://github.com/oasisprotocol/towncrier
 [Oasis Core]: https://github.com/oasisprotocol/oasis-core
 [its Change Log fragments documentation]:
   https://github.com/oasisprotocol/oasis-core/blob/master/.changelog/README.md
