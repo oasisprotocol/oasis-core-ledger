@@ -1,6 +1,6 @@
 # towncrier configuration.
 
-# For more information, see: https://github.com/oasislabs/towncrier/.
+# For more information, see: https://github.com/oasisprotocol/towncrier/.
 
 [tool.towncrier]
 filename = "CHANGELOG.md"

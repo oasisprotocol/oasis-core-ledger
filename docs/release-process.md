@@ -67,7 +67,7 @@ variables:
 - `RELEASE_BRANCH` (default: `master`): Name of the branch where to tag the next
   release.
 
-[Make]: https://en.wikipedia.org/wiki/Make_(software)
+[Make]: https://en.wikipedia.org/wiki/Make_\(software\)
 [Change Log]: ../CHANGELOG.md
 [Change Log Fragments]: ../.changelog/README.md
 [Versioning]: ../README.md#versioning
@@ -132,7 +132,7 @@ This command will perform sanity checks to prevent common errors.
 
 After those checks have passed, it will ask for confirmation before proceeding.
 
-[canonical git repository]: https://github.com/oasisprotocol/oasis-core
+[canonical git repository]: https://github.com/oasisprotocol/oasis-core-ledger
 [Release manager workflow]: ../.github/workflows/release.yml
 [GoReleaser]: https://goreleaser.com/
 [Oasis Core Ledger's releases page]:
