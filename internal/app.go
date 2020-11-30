@@ -382,11 +382,14 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context, transaction []byte)
 		message := []byte{ledger.getCLA(), insSignEd25519, payloadDesc, 0, payloadLen}
 		message = append(message, chunk...)
 
+		logger.Info("Sign",
+			"message", hex.EncodeToString(message),
+		)
+
 		response, err := ledger.device.Exchange(message)
 
 		logger.Debug("Sign",
 			"err", err,
-			"message", hex.EncodeToString(message),
 			"response", hex.EncodeToString(response),
 		)
 
