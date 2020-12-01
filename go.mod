@@ -8,6 +8,8 @@ go 1.15
 // https://github.com/spf13/cobra/issues/1091
 replace github.com/gorilla/websocket => github.com/gorilla/websocket v1.4.2
 
+replace github.com/zondax/ledger-go => ./../Code/ledger-go
+
 require (
 	github.com/oasisprotocol/oasis-core/go v0.2011.3
 	github.com/smartystreets/assertions v1.2.0 // indirect
