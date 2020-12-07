@@ -67,56 +67,56 @@ clean:
 # Fetch all the latest changes (including tags) from the canonical upstream git
 # repository.
 fetch-git:
-	@$(ECHO) "Fetching the latest changes (including tags) from $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote..."
-	@git fetch $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) --tags
+	@$(ECHO) "Fetching the latest changes (including tags) from $(GIT_ORIGIN_REMOTE) remote..."
+	@git fetch $(GIT_ORIGIN_REMOTE) --tags
 
 # Private target for bumping project's version using the Punch tool.
 # NOTE: It should not be invoked directly.
 _version-bump: fetch-git
-	@$(ENSURE_GIT_VERSION_LATEST_TAG_EQUALS_PUNCH_VERSION)
+	@$(ENSURE_VALID_RELEASE_BRANCH_NAME)
 	@$(PUNCH_BUMP_VERSION)
-	@git add $(_PUNCH_VERSION_FILE)
+	@git add $(PUNCH_VERSION_FILE)
 
 # Private target for assembling the Change Log.
 # NOTE: It should not be invoked directly.
 _changelog:
-	@$(ECHO) "$(CYAN)*** Generating Change Log for version $(_PUNCH_VERSION)...$(OFF)"
+	@$(ECHO) "$(CYAN)*** Generating Change Log for version $(PUNCH_VERSION)...$(OFF)"
 	@$(BUILD_CHANGELOG)
 	@$(ECHO) "Next, review the staged changes, commit them and make a pull request."
 	@$(WARN_BREAKING_CHANGES)
 
 # Assemble Change Log.
 # NOTE: We need to call Make recursively since _version-bump target updates
-# Punch's version and hence we need Make to re-evaluate the _PUNCH_VERSION
+# Punch's version and hence we need Make to re-evaluate the PUNCH_VERSION
 # variable.
 changelog: _version-bump
 	@$(MAKE) --no-print-directory _changelog
 
 # Tag the next release.
 release-tag: fetch-git
-	@$(ECHO) "Checking if we can tag version $(_PUNCH_VERSION) as the next release..."
+	@$(ECHO) "Checking if we can tag version $(PUNCH_VERSION) as the next release..."
 	@$(ENSURE_VALID_RELEASE_BRANCH_NAME)
 	@$(ENSURE_RELEASE_TAG_DOES_NOT_EXIST)
 	@$(ENSURE_NO_CHANGELOG_FRAGMENTS)
 	@$(ENSURE_NEXT_RELEASE_IN_CHANGELOG)
-	@$(ECHO) "All checks have passed. Proceeding with tagging the $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH)'s HEAD with tag '$(_RELEASE_TAG)'."
+	@$(ECHO) "All checks have passed. Proceeding with tagging the $(GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH)'s HEAD with tag '$(RELEASE_TAG)'."
 	@$(CONFIRM_ACTION)
 	@$(ECHO) "If this appears to be stuck, you might need to touch your security key for GPG sign operation."
-	@git tag --sign --message="Version $(_PUNCH_VERSION)" $(_RELEASE_TAG) $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH)
-	@git push $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) $(_RELEASE_TAG)
-	@$(ECHO) "$(CYAN)*** Tag '$(_RELEASE_TAG)' has been successfully pushed to $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote.$(OFF)"
+	@git tag --sign --message="Version $(PUNCH_VERSION)" $(RELEASE_TAG) $(GIT_ORIGIN_REMOTE)/$(RELEASE_BRANCH)
+	@git push $(GIT_ORIGIN_REMOTE) $(RELEASE_TAG)
+	@$(ECHO) "$(CYAN)*** Tag '$(RELEASE_TAG)' has been successfully pushed to $(GIT_ORIGIN_REMOTE) remote.$(OFF)"
 
 # Create and push a stable branch for the current release.
 release-stable-branch: fetch-git
-	@$(ECHO) "Checking if we can create a stable release branch for version $(_PUNCH_VERSION)...$(OFF)"
+	@$(ECHO) "Checking if we can create a stable release branch for version $(PUNCH_VERSION)...$(OFF)"
 	@$(ENSURE_VALID_STABLE_BRANCH)
 	@$(ENSURE_RELEASE_TAG_EXISTS)
 	@$(ENSURE_STABLE_BRANCH_DOES_NOT_EXIST)
-	@$(ECHO) "All checks have passed. Proceeding with creating the '$(_STABLE_BRANCH)' branch on $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote."
+	@$(ECHO) "All checks have passed. Proceeding with creating the '$(STABLE_BRANCH)' branch on $(GIT_ORIGIN_REMOTE) remote."
 	@$(CONFIRM_ACTION)
-	@git branch $(_STABLE_BRANCH) $(_RELEASE_TAG)
-	@git push $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) $(_STABLE_BRANCH)
-	@$(ECHO) "$(CYAN)*** Branch '$(_STABLE_BRANCH)' has been sucessfully pushed to $(OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE) remote.$(OFF)"
+	@git branch $(STABLE_BRANCH) $(RELEASE_TAG)
+	@git push $(GIT_ORIGIN_REMOTE) $(STABLE_BRANCH)
+	@$(ECHO) "$(CYAN)*** Branch '$(STABLE_BRANCH)' has been sucessfully pushed to $(GIT_ORIGIN_REMOTE) remote.$(OFF)"
 
 # Build macOS release binaries.
 release-build-darwin:
@@ -124,8 +124,11 @@ release-build-darwin:
 
 # Build and publish the next release.
 release-build:
+	@$(ENSURE_VALID_RELEASE_BRANCH_NAME)
+ifeq ($(OASIS_CORE_LEDGER_REAL_RELEASE), true)
 	@$(ENSURE_GIT_VERSION_EQUALS_PUNCH_VERSION)
-	@$(ECHO) "$(CYAN)*** Creating release for version $(_PUNCH_VERSION)...$(OFF)"
+endif
+	@$(ECHO) "$(CYAN)*** Creating release for version $(PUNCH_VERSION)...$(OFF)"
 	@goreleaser $(GORELEASER_ARGS)
 
 # List of targets that are not actual files.
