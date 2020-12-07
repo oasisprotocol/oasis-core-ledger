@@ -3,6 +3,7 @@ package internal
 import (
 	"encoding/hex"
 	"fmt"
+	"time"
 
 	"github.com/oasisprotocol/oasis-core/go/common/crypto/signature"
 	"github.com/oasisprotocol/oasis-core/go/common/logging"
@@ -405,6 +406,11 @@ func (ledger *LedgerOasis) sign(bip44Path []uint32, context, transaction []byte)
 
 		finalResponse = response
 	}
+
+	// XXX: Work-around for Oasis App issue of currently not being capable of
+	// signing two transactions immediately one after another:
+	// https://github.com/Zondax/ledger-oasis/issues/68.
+	time.Sleep(100 * time.Millisecond)
 
 	return finalResponse, nil
 }
