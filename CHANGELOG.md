@@ -12,6 +12,55 @@ The format is inspired by [Keep a Changelog].
 
 <!-- TOWNCRIER -->
 
+## 1.2.0 (2020-12-07)
+
+### Features
+
+- internal: Add more verbose logging of errors in `ConnectApp()` and `FindApp()`
+  ([#87](https://github.com/oasisprotocol/oasis-core-ledger/issues/87))
+
+- internal: Log message sent to device separately in `sign()` function
+  ([#92](https://github.com/oasisprotocol/oasis-core-ledger/issues/92))
+
+  This simplifies debugging since message will be logged immediately after it is
+  generated (and before it is sent to the device) and not together with the
+  response (after response is received from the device).
+
+### Bug Fixes
+
+- internal: Add 0.1 s delay after signing to work-around Oasis app issue
+  ([#93](https://github.com/oasisprotocol/oasis-core-ledger/issues/93))
+
+  Add 0.1 s delay at the end of the `sign()` function to work-around Oasis app
+  issue of not being capable of signing two transactions immediately one after
+  another.
+
+  For more details, see: <https://github.com/Zondax/ledger-oasis/issues/68>.
+
+### Internal Changes
+
+- go: bump github.com/spf13/cobra from 1.1.0 to 1.1.1
+  ([#81](https://github.com/oasisprotocol/oasis-core-ledger/issues/81))
+
+- go: Bump Oasis Core dependency to 20.12.2
+  ([#82](https://github.com/oasisprotocol/oasis-core-ledger/issues/82),
+   [#90](https://github.com/oasisprotocol/oasis-core-ledger/issues/90))
+
+- github: Also run *ci-lint* and *ci-tests* workflows for `stable/*` branches
+  ([#83](https://github.com/oasisprotocol/oasis-core-ledger/issues/83))
+
+- ci: bump golangci/golangci-lint-action from v2.2.1 to v2.3.0
+  ([#84](https://github.com/oasisprotocol/oasis-core-ledger/issues/84))
+
+- ci: bump actions/upload-artifact from v2.2.0 to v2.2.1
+  ([#88](https://github.com/oasisprotocol/oasis-core-ledger/issues/88))
+
+- ci: bump actions/download-artifact from v2.0.5 to v2.0.6
+  ([#89](https://github.com/oasisprotocol/oasis-core-ledger/issues/89))
+
+- Make: Unify with Oasis Core and Oasis Core Rosetta Gateway repos
+  ([#94](https://github.com/oasisprotocol/oasis-core-ledger/issues/94))
+
 ## 1.1.0 (2020-10-16)
 
 ### Features
