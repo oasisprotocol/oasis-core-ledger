@@ -15,7 +15,7 @@ on:
 env:
   GORELEASER_URL_PREFIX: https://github.com/goreleaser/goreleaser/releases/download/
   GORELEASER_VERSION: 0.149.0
-  CURL_CMD: curl --proto =https --tlsv1.2 -sSL
+  CURL_CMD: curl --proto =https --tlsv1.2 --location --silent --show-error --fail
 
 jobs:
 
