@@ -7,7 +7,7 @@ The following steps should be followed when preparing a release.
 Our release process relies on some tooling that needs to be available on a
 maintainer's system:
 
-- [Python] 3.5+.
+- [Python] 3.6+.
 - [Oasis' towncrier fork].
 - [Punch] 2.0.x.
 
@@ -62,21 +62,21 @@ which part of the project's version to bump.
 To customize the release process, one can set the following environment
 variables:
 
-- `OASIS_CORE_LEDGER_GIT_ORIGIN_REMOTE` (default: `origin`): Name of the git
-  remote pointing to the canonical upstream git repository.
+- `GIT_ORIGIN_REMOTE` (default: `origin`): Name of the git remote pointing to
+  the canonical upstream git repository.
 - `RELEASE_BRANCH` (default: `master`): Name of the branch where to tag the next
   release.
 
 [Make]: https://en.wikipedia.org/wiki/Make_\(software\)
 [Change Log]: ../CHANGELOG.md
 [Change Log Fragments]: ../.changelog/README.md
-[Versioning]: ../README.md#versioning
+[Versioning]: versioning.md
 
 ## Preparing a Regular Release
 
-### Prepare Change Log
+### Prepare the Change Log
 
-Before a release, all [Change Log Fragments] should be assembled into a new
+Before a release, all [Change Log fragments] should be assembled into a new
 section of the [Change Log] using the `changelog` [Make] target.
 
 Create a new branch, e.g. `<GITHUB-NAME>/changelog`, and then
@@ -95,7 +95,7 @@ and make a pull request.
 
 Once the pull request had been reviewed and merged, proceed to the next step.
 
-### Tag next release
+### Tag Next Release
 
 To create a signed git tag from the latest commit in origin remote's `master`
 branch, use:
@@ -109,7 +109,7 @@ while tagging the next release.
 
 After those checks have passed, it will ask for confirmation before proceeding.
 
-### Ensure GitHub release was published
+### Ensure GitHub Release Was Published
 
 After the tag with the next release is pushed to the [canonical git repository],
 the GitHub Actions [Release manager workflow] is triggered which uses the
@@ -119,7 +119,7 @@ checksums, and publish a GitHub Release that accompanies the versioned git tag.
 Browse to [Oasis Core Ledger's releases page] and make sure the new release is
 properly published.
 
-### Create `stable/MAJOR.MINOR.x` branch
+### Create `stable/MAJOR.MINOR.x` Branch
 
 To prepare a new stable branch from the new release tag and push it to the
 origin remote, use:
@@ -138,7 +138,7 @@ After those checks have passed, it will ask for confirmation before proceeding.
 [Oasis Core Ledger's releases page]:
   https://github.com/oasisprotocol/oasis-core-ledger/releases
 
-## Preparing a bugfix/stable release
+## Preparing a Bugfix/Stable Release
 
 As mentioned in the [Versioning] documentation, sometimes we will want to
 back-port some fixes (e.g. a security fix) and (backwards compatible) changes
@@ -153,9 +153,7 @@ to back-port the changes to, e.g. `stable/1.5.x`:
 RELEASE_BRANCH="stable/1.5.x"
 ```
 
-[Versioning]: ../README.md#versioning.md
-
-### Back-port changes
+### Back-port Changes
 
 Create a new branch, e.g. `<GITHUB-NAME>/${RELEASE_BRANCH}/backport-foo`, from
 the `${RELEASE_BRANCH}` branch:
@@ -167,7 +165,7 @@ git checkout -b <GITHUB-NAME>/${RELEASE_BRANCH}/backport-foo ${RELEASE_BRANCH}
 After back-porting all the desired changes, push it to the origin and make a
 pull request against the `${RELEASE_BRANCH}` branch.
 
-### Prepare Change Log for bugfix/stable release
+### Prepare Change Log for Bugfix/Stable Release
 
 As with a regular release, the back-ported changes should include the
 corresponding [Change Log Fragments] that need to be assembled into a new
@@ -194,7 +192,7 @@ and make a pull request against the `${RELEASE_BRANCH}` branch.
 
 Once the pull request had been reviewed and merged, proceed to the next step.
 
-### Tag bugfix/stable release
+### Tag Bugfix/Stable Release
 
 As with a regular release, create a signed git tag from the latest commit in
 origin remote's release branch by running the `release-tag` Make target:
@@ -206,7 +204,7 @@ make release-tag
 After the sanity checks have passed, it will ask for confirmation before
 proceeding.
 
-### Ensure GitHub release for bugfix/stable release was published
+### Ensure GitHub Release for Bugfix/Stable Release Was Published
 
 Similar to a regular release, after the tag with the next release is pushed to
 the [canonical git repository], the GitHub Actions [Release manager workflow] is
