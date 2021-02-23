@@ -27,7 +27,7 @@ var (
 	// For now, just hard code the expected responses in a table, with
 	// the caveat that it is not possible to test signing.
 	//
-	// Ledger Test Mnemonic: equip will roof matter pink blind book anxiety banner elbow sun young
+	// Ledger Test Mnemonic: equip will roof matter pink blind book anxiety banner elbow sun young.
 	testDeviceKeys = []*mockKey{
 		{
 			signature.NewPublicKey("97e72e6e83ec39eb98d7e9189513aba662a08a210b9974b0f7197458483c7161"),
