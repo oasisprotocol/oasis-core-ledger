@@ -67,10 +67,15 @@ variables:
 - `RELEASE_BRANCH` (default: `master`): Name of the branch where to tag the next
   release.
 
-[Make]: https://en.wikipedia.org/wiki/Make_\(software\)
-[Change Log]: ../CHANGELOG.md
-[Change Log Fragments]: ../.changelog/README.md
+<!-- markdownlint-disable line-length -->
+[Make]:
+  https://en.wikipedia.org/wiki/Make_\(software\)
+[Change Log]:
+  https://github.com/oasisprotocol/oasis-core-ledger/tree/master/CHANGELOG.md
+[Change Log Fragments]:
+  https://github.com/oasisprotocol/oasis-core-ledger/tree/master/.changelog/README.md
 [Versioning]: versioning.md
+<!-- markdownlint-enable line-length -->
 
 ## Preparing a Regular Release
 
@@ -79,8 +84,7 @@ variables:
 Before a release, all [Change Log fragments] should be assembled into a new
 section of the [Change Log] using the `changelog` [Make] target.
 
-Create a new branch, e.g. `<GITHUB-NAME>/changelog`, and then
-run [Make]:
+Create a new branch, e.g. `<GITHUB-NAME>/changelog`, and then run [Make]:
 
 ```bash
 git checkout -b <GITHUB-NAME>/changelog
@@ -132,11 +136,16 @@ This command will perform sanity checks to prevent common errors.
 
 After those checks have passed, it will ask for confirmation before proceeding.
 
-[canonical git repository]: https://github.com/oasisprotocol/oasis-core-ledger
-[Release manager workflow]: ../.github/workflows/release.yml
-[GoReleaser]: https://goreleaser.com/
+<!-- markdownlint-disable line-length -->
+[canonical git repository]:
+  https://github.com/oasisprotocol/oasis-core-ledger
+[Release manager workflow]:
+  https://github.com/oasisprotocol/oasis-core-ledger/tree/master/.github/workflows/release.yml
+[GoReleaser]:
+  https://goreleaser.com/
 [Oasis Core Ledger's releases page]:
   https://github.com/oasisprotocol/oasis-core-ledger/releases
+<!-- markdownlint-enable line-length -->
 
 ## Preparing a Bugfix/Stable Release
 

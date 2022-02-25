@@ -1,16 +1,20 @@
 # Exporting Public Key to Entity
 
-{% hint style="info" %}
+:::info
+
 Before following the instructions below, make sure your Ledger wallet is
 unlocked and the Oasis App is open.
-{% endhint %}
 
-{% hint style="warning" %}
+:::
+
+:::caution
+
 While the Oasis App is available in _Developer mode_, opening the App brings
 up the "Pending Ledger review" screen.
 You need to press both buttons at once to close that screen and transition to
 the _ordinary_ "Oasis Ready" screen where the Oasis App is ready to be used.
-{% endhint %}
+
+:::
 
 Before you will be able to sign anything, you will need to export the public key
 of your Ledger wallet's account and use it to generate an entity.
@@ -35,7 +39,8 @@ oasis-node signer export \
 This will create an `entity.json` file in the `entity` directory that contains
 the public key for a private & public key pair generated on your Ledger wallet.
 
-{% hint style="info" %}
+:::info
+
 In case you will have more than one Ledger wallet connected, you will need to
 specify which wallet to use by setting the `wallet_id` configuration key in
 the `--signer.plugin.config` flag, i.e.
@@ -46,9 +51,11 @@ the `--signer.plugin.config` flag, i.e.
 
 where `<LEDGER-WALLET-ID>` is replaced with the ID of your Ledger wallet.
 See [Identifying Wallets] for more details.
-{% endhint %}
 
-{% hint style="info" %}
+:::
+
+:::info
+
 If you want to use different account index for the same Ledger wallet, you
 will need to specify it by setting the `index` configuration key in the
 `--signer.plugin.config` flag, i.e.
@@ -67,7 +74,7 @@ If you need to specify multiple configuration keys in the
 --signer.plugin.config "wallet_id:1fc3be,index:5"
 ```
 
-{% endhint %}
+:::
 
 [Setup]: setup.md#remembering-path-to-ledger-signer-plugin
 [Identifying Wallets]: wallets.md

@@ -229,7 +229,7 @@ The format is inspired by [Keep a Changelog].
 - Add [Oasis Core Ledger documentation] to GitBook
   ([#47](https://github.com/oasisprotocol/oasis-core-ledger/issues/47))
 
-  [Oasis Core Ledger documentation]: https://docs.oasis.dev/oasis-core-ledger/
+  [Oasis Core Ledger documentation]: /oasis-core-ledger/
 
 - docs: Add [README] and [Usage docs]
   ([#47](https://github.com/oasisprotocol/oasis-core-ledger/issues/47))
@@ -246,9 +246,7 @@ The format is inspired by [Keep a Changelog].
   [*ci-tests* GitHub Actions workflow]:
     https://github.com/oasisprotocol/oasis-core-ledger/actions?query=workflow:ci-tests
   <!-- markdownlint-enable line-length -->
-  <!--
-  gitlint-ignore: body-max-line-length
-  -->
+  <!-- gitlint-ignore: body-max-line-length -->
 
 - Add new `Makefile`
   ([#14](https://github.com/oasisprotocol/oasis-core-ledger/issues/14))
@@ -260,9 +258,7 @@ The format is inspired by [Keep a Changelog].
   [*ci-lint* GitHub Actions workflow]:
     https://github.com/oasisprotocol/oasis-core-ledger/actions?query=workflow:ci-lint
   <!-- markdownlint-enable line-length -->
-  <!--
-  gitlint-ignore: body-max-line-length
-  -->
+  <!-- gitlint-ignore: body-max-line-length -->
 
 - Add configuration for new linters: gitlint, markdownlint, golangci-lint
   ([#14](https://github.com/oasisprotocol/oasis-core-ledger/issues/14))
@@ -306,9 +302,7 @@ The format is inspired by [Keep a Changelog].
   [*release* GitHub Actions workflow]:
     https://github.com/oasisprotocol/oasis-core-ledger/actions?query=workflow:release
   <!-- markdownlint-enable line-length -->
-  <!--
-  gitlint-ignore: body-max-line-length
-  -->
+  <!-- gitlint-ignore: body-max-line-length -->
 
 - Make: Adjust handling of Go's linker flags
   ([#45](https://github.com/oasisprotocol/oasis-core-ledger/issues/45))

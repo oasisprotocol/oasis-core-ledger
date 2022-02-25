@@ -1,8 +1,10 @@
 # Setup
 
-{% hint style="warning" %}
+:::caution
+
 Oasis Core Ledger is currently only supported on x86_64 Linux and macOS systems.
-{% endhint %}
+
+:::
 
 ## Prerequisites
 
@@ -17,20 +19,19 @@ You will need an appropriate version Oasis Node CLI installed your system.
 For more details, see the [Oasis Node] documentation in the general
 [Oasis Docs].
 
-{% hint style="warning" %}
+:::caution
+
 Currently, there are no binary releases of the Oasis Node CLI for macOS systems.
 
 To be able to use the Ledger signer plugin on a macOS system, you will need to
 [build the Oasis Node CLI from source].
-{% endhint %}
 
-[Oasis Node]:
-  https://docs.oasis.dev/general/run-a-node/prerequisites/oasis-node
-[Oasis Docs]:
-  https://docs.oasis.dev/
+:::
+
+[Oasis Node]: /general/run-a-node/prerequisites/oasis-node
+[Oasis Docs]: /
 <!-- markdownlint-disable line-length -->
-[build the Oasis Node CLI from source]:
-  https://docs.oasis.dev/general/run-a-node/prerequisites/oasis-node#building-from-source
+[build the Oasis Node CLI from source]: /general/run-a-node/prerequisites/oasis-node#building-from-source
 <!-- markdownlint-enable line-length -->
 
 ## Downloading a Binary Release
@@ -67,13 +68,16 @@ LEDGER_SIGNER_PATH="$HOME/oasis_core_ledger_1.0.0_linux_amd64/ledger-signer"
 The recommended way to install the [Oasis app] on your Ledger wallet is to
 install it via [Ledger Live]'s Manager.
 
-{% hint style="info" %}
+:::info
+
 Currently, you will have enable _Developer mode_ by going to
 _Settings -> Experimental features_, to be able to find the Oasis app in
 Ledger Live's Manager.
-{% endhint %}
 
-{% hint style="warning" %}
+:::
+
+:::caution
+
 The Oasis app requires an up-to-date firmware on your Ledger wallet:
 
 - At least [version 1.6.1] released on Aug 11, 2020 on a Nano S device.
@@ -83,9 +87,11 @@ Follow Ledger's instructions for updating the firmware on your Ledger wallet:
 
 - [Nano S]
 - [Nano X]
-{% endhint %}
 
-{% hint style="info" %}
+:::
+
+:::info
+
 To find the Oasis app in the Ledger Live app store, go to the App catalog
 search bar and type in _Oasis_.
 
@@ -93,7 +99,8 @@ You may see both the _Oasis_ app and the _OasisVal_ app come up in the search
 results. You need to use the standard _Oasis_ app.
 
 ![Oasis app in Ledger Live](../assets/ledger-live-manager-oasis.png)
-{% endhint %}
+
+:::
 
 Once installed, the Oasis app will use the generated mnemonic stored on the
 Ledger wallet to generate the private & public key pairs for your accounts.

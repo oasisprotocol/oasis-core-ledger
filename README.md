@@ -16,7 +16,7 @@
 [godev-badge]: https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white
 [godev-link]: https://pkg.go.dev/mod/github.com/oasisprotocol/oasis-core-ledger?tab=packages
 [gitbook-badge]: https://img.shields.io/badge/gitbook-docs-007d9c?logo=read-the-docs&logoColor=white
-[gitbook-link]: https://docs.oasis.dev/oasis-core-ledger
+[gitbook-link]: /oasis-core-ledger
 <!-- markdownlint-enable line-length -->
 
 This projects aims to provide support for using a [Ledger] hardware
@@ -42,6 +42,6 @@ This project is work in progress. Some aspects are subject to change.
 
 [Ledger]: https://www.ledger.com/
 [Oasis Core]: https://github.com/oasisprotocol/oasis-core
-[docs]: https://docs.oasis.dev/oasis-core-ledger
+[docs]: /oasis-core-ledger
 [core-contrib]:
   https://github.com/oasisprotocol/oasis-core/blob/master/CONTRIBUTING.md
