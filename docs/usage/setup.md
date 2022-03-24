@@ -78,10 +78,13 @@ Ledger Live's Manager.
 
 :::caution
 
-The Oasis app requires an up-to-date firmware on your Ledger wallet:
+To be able to install the current version ([version 2.3.2]) of the Oasis app,
+the firmware on your Ledger wallet needs to be up-to-date:
 
-- At least [version 1.6.1] released on Aug 11, 2020 on a Nano S device.
-- At least [version 1.2.4-4] released on Aug 4, 2020 on a Nano X device.
+- At least [version 2.1.0][nano-s-firmware-notes] released on Nov 30, 2021 on a
+  Nano S device.
+- At least [version 2.0.0][nano-x-firmware-notes] released on Oct 21, 2021 on a
+  Nano X device.
 
 Follow Ledger's instructions for updating the firmware on your Ledger wallet:
 
@@ -108,9 +111,10 @@ Ledger wallet to generate the private & public key pairs for your accounts.
 <!-- markdownlint-disable line-length -->
 [Oasis app]: https://github.com/Zondax/ledger-oasis
 [Ledger Live]: https://www.ledger.com/ledger-live/
-[version 1.6.1]:
+[version 2.3.2]: https://github.com/LedgerHQ/app-oasis/releases/tag/v2.3.2
+[nano-s-firmware-notes]:
   https://support.ledger.com/hc/en-us/articles/360010446000-Ledger-Nano-S-firmware-release-notes
-[version 1.2.4-4]:
+[nano-x-firmware-notes]:
   https://support.ledger.com/hc/en-us/articles/360014980580-Ledger-Nano-X-firmware-release-notes
 [Nano S]:
   https://support.ledger.com/hc/en-us/articles/360002731113-Update-Ledger-Nano-S-firmware
