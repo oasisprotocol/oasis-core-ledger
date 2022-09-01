@@ -169,15 +169,17 @@ For more details, see the [Transfer Tokens] document of the general
 :::
 
 <!-- markdownlint-disable line-length -->
-[Use Your Tokens' Setup]: /general/manage-tokens/advanced/oasis-cli-tools
-[Oasis Docs]: /
+[Use Your Tokens' Setup]:
+  https://github.com/oasisprotocol/docs/blob/main/docs/general/manage-tokens/advanced/oasis-cli-tools/README.md
+[Oasis Docs]:
+  https://github.com/oasisprotocol/docs/blob/main/docs/general/README.mdx
 [Base and Signer CLI flags]:
-  /general/manage-tokens/advanced/oasis-cli-tools/setup#common-cli-flags
+  https://github.com/oasisprotocol/docs/blob/main/docs/general/manage-tokens/advanced/oasis-cli-tools/setup.md#common-cli-flags
 [Common Transaction Flags]:
-  /general/manage-tokens/advanced/oasis-cli-tools/setup#common-transaction-flags
+  https://github.com/oasisprotocol/docs/blob/main/docs/general/manage-tokens/advanced/oasis-cli-tools/setup.md#common-transaction-flags
 [Setup]: setup.md#remembering-path-to-ledger-signer-plugin
 [Exporting Public Key to Entity]: entity.md
 [Identifying Wallets]: wallets.md
 [Transfer Tokens]:
-  /general/manage-tokens/advanced/oasis-cli-tools/transfer-tokens
+  https://github.com/oasisprotocol/docs/blob/main/docs/general/manage-tokens/advanced/oasis-cli-tools/transfer-tokens.md
 <!-- markdownlint-enable line-length -->

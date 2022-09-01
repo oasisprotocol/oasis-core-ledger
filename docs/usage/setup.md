@@ -28,10 +28,12 @@ To be able to use the Ledger signer plugin on a macOS system, you will need to
 
 :::
 
-[Oasis Node]: /general/run-a-node/prerequisites/oasis-node
-[Oasis Docs]: /
 <!-- markdownlint-disable line-length -->
-[build the Oasis Node CLI from source]: /general/run-a-node/prerequisites/oasis-node#building-from-source
+[Oasis Node]:
+  https://github.com/oasisprotocol/docs/blob/main/docs/node/run-your-node/prerequisites/oasis-node.md
+[Oasis Docs]: https://github.com/oasisprotocol/docs/blob/main/docs/general/README.mdx
+[build the Oasis Node CLI from source]:
+  https://github.com/oasisprotocol/docs/blob/main/docs/node/run-your-node/prerequisites/oasis-node.md#building-from-source
 <!-- markdownlint-enable line-length -->
 
 ## Downloading a Binary Release
