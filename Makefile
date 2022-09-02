@@ -34,9 +34,11 @@ lint-go:
 lint-git:
 	@$(CHECK_GITLINT)
 
+# Lint documentation.
+# Ignore CHANGELOG.md, since it's composed from .changelog snippets.
 lint-docs:
-	@$(ECHO) "$(CYAN)*** Runnint markdownlint-cli...$(OFF)"
-	@npx markdownlint-cli '**/*.md' --ignore .changelog/
+	@$(ECHO) "$(CYAN)*** Running markdownlint-cli...$(OFF)"
+	@npx markdownlint-cli '**/*.md' --ignore .changelog/ --ignore CHANGELOG.md
 
 lint-changelog:
 	@$(CHECK_CHANGELOG_FRAGMENTS)
