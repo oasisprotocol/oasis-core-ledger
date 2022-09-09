@@ -53,8 +53,10 @@ to the [BIP44] specification.
 
 :::
 
+<!-- markdownlint-disable line-length -->
 [staking account address]:
-  /general/manage-tokens/terminology#address
+  https://github.com/oasisprotocol/docs/blob/main/docs/general/manage-tokens/terminology.md#address
 [Identifying Wallets]: wallets.md
 [BIP32]: https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
 [BIP44]: https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
+<!-- markdownlint-enable line-length -->
