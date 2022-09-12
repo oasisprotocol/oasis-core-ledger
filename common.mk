@@ -308,7 +308,7 @@ If you would like to use the Ledger signer plugin with Oasis Core, see the
 [Oasis Core Ledger Docs].
 
 [Change Log]: https://github.com/oasisprotocol/oasis-core-ledger/blob/v$(VERSION)/CHANGELOG.md
-[Oasis Core Ledger Docs]: https://docs.oasis.dev/oasis-core-ledger/#usage
+[Oasis Core Ledger Docs]: https://docs.oasis.io/oasis-core-ledger/#usage
 
 endef
 
