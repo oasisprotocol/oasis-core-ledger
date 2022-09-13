@@ -30,7 +30,7 @@ It provides:
 
 ## Documentation
 
-Browse to [docs.oasis.dev/oasis-core-ledger][docs].
+Browse to [docs.oasis.io/oasis-core-ledger][docs].
 
 ## Contributing
 
@@ -42,6 +42,6 @@ This project is work in progress. Some aspects are subject to change.
 
 [Ledger]: https://www.ledger.com/
 [Oasis Core]: https://github.com/oasisprotocol/oasis-core
-[docs]: /oasis-core-ledger
+[docs]: ./README.md
 [core-contrib]:
   https://github.com/oasisprotocol/oasis-core/blob/master/CONTRIBUTING.md
