@@ -1,9 +1,15 @@
+# gitlint configuration.
+
+# For more information, see:
+# https://jorisroovers.com/gitlint/configuration/.
+
 [general]
 verbosity = 2
 ignore-merge-commits=true
 ignore-fixup-commits=false
 ignore-squash-commits=false
 ignore=body-is-missing
+contrib=contrib-disallow-cleanup-commits
 
 [title-max-length]
 line-length=72
@@ -15,7 +21,4 @@ line-length=80
 min-length=20
 
 [title-must-not-contain-word]
-# NOTE: We can't use "fixup!" because gitlint regex matching would fail
-# completely.
-# For more details, see: https://github.com/jorisroovers/gitlint/issues/139
-words=wip,fixup
+words=wip
